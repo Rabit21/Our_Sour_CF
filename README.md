@@ -68,3 +68,7 @@ Métricas de demostración distingue el conteo del catálogo local de las búsqu
 Inicio → Leer QR abre la cámara y resuelve códigos con formato `OURSOUR:PRODUCTO:1` contra el catálogo local. La app informa formato inválido, producto inexistente y permiso rechazado, con acceso a ajustes para recuperarlo. Una captura devuelve un solo resultado; se puede iniciar otra lectura al volver. No se guardan fotos.
 
 Se utiliza ZXing Android Embedded 4.3.0: https://github.com/journeyapps/zxing-android-embedded. Los códigos de `docs/qr/` permiten probar producto 1, formato inválido y producto inexistente. La lectura válida se comprobó en Galaxy Tab S8; el usuario confirmó los casos inválido e inexistente. El permiso rechazado se verificó directamente en la tablet. Compilación, once pruebas unitarias y Lint correctos.
+
+## Infraestructura backend
+
+Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Esta versión incluye infraestructura y endpoints de estado; las funciones de negocio backend todavía no están implementadas.
