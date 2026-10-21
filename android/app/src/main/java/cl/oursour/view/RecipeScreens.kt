@@ -8,13 +8,24 @@ import androidx.compose.ui.unit.dp
 import cl.oursour.repository.RecipeRepository
 
 @Composable
-fun IngredientsScreen(selected: Set<Int>, onToggle: (Int) -> Unit, onSearch: () -> Unit, onBack: () -> Unit) {
+fun IngredientsScreen(selected: Set<Int>, onToggle: (Int) -> Unit, onSearch: () -> Unit, onBack: () -> Unit, frequentIds: Set<Int>, onSave: (Int) -> Unit, onRemove: (Int) -> Unit, error: String?) {
     Page("Tus ingredientes", onBack) {
         Text("Marca lo que tienes para encontrar recetas y ver lo que falta.")
+        error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        Text("Frecuentes guardados", style = MaterialTheme.typography.titleMedium)
+        if (frequentIds.isEmpty()) Text("Aún no tienes ingredientes frecuentes.")
+        frequentIds.sorted().forEach { id ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(RecipeRepository.ingredientName(id), Modifier.weight(1f).padding(top = 12.dp))
+                TextButton(onClick = { onRemove(id) }) { Text("Quitar ${RecipeRepository.ingredientName(id)}") }
+            }
+        }
+        Text("Todos los ingredientes", style = MaterialTheme.typography.titleMedium)
         RecipeRepository.ingredients.forEach { ingredient ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(ingredient.name, Modifier.weight(1f).padding(top = 12.dp))
                 Checkbox(checked = ingredient.id in selected, onCheckedChange = { onToggle(ingredient.id) })
+                TextButton(onClick = { onSave(ingredient.id) }, enabled = ingredient.id !in frequentIds) { Text(if (ingredient.id in frequentIds) "Guardado" else "Guardar ${ingredient.name}") }
             }
         }
         Text("${selected.size} ingredientes seleccionados")

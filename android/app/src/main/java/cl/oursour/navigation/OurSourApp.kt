@@ -6,6 +6,7 @@ import androidx.navigation.compose.*
 import cl.oursour.view.*
 import cl.oursour.viewmodel.SessionViewModel
 import cl.oursour.viewmodel.RecipeViewModel
+import cl.oursour.viewmodel.FrequentIngredientViewModel
 
 @Composable
 fun OurSourApp(session: SessionViewModel = viewModel()) {
@@ -13,6 +14,9 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
     val user by session.user.collectAsState()
     val recipes: RecipeViewModel = viewModel()
     val selected by recipes.selected.collectAsState()
+    val frequent: FrequentIngredientViewModel = viewModel()
+    val saved by frequent.ingredients.collectAsState()
+    val frequentError by frequent.error.collectAsState()
     fun enterHome() { nav.navigate("home") { popUpTo("login") { inclusive = true }; launchSingleTop = true } }
     NavHost(nav, startDestination = "login") {
         composable("login") {
@@ -25,7 +29,7 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
                 error
             })
         }
-        composable("ingredients") { IngredientsScreen(selected, recipes::toggle, { nav.navigate("recommendations") }, { nav.popBackStack() }) }
+        composable("ingredients") { IngredientsScreen(selected, recipes::toggle, { nav.navigate("recommendations") }, { nav.popBackStack() }, saved.map { it.ingredientId }.toSet(), frequent::save, frequent::remove, frequentError) }
         composable("recommendations") { RecommendationsScreen(selected, { nav.navigate("recipe/$it") }, { nav.popBackStack() }) }
         composable("recipe/{id}") { entry -> RecipeDetailScreen(entry.arguments?.getString("id")?.toIntOrNull() ?: -1, selected, { nav.popBackStack() }) }
         composable("home") {

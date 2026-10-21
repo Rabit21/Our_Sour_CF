@@ -4,7 +4,7 @@ Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y si
 
 ## Estado actual
 
-Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; todavía no incluye persistencia, compras ni lector QR. El backend aún no está implementado.
+Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; todavía no incluye compras ni lector QR. El backend aún no está implementado.
 
 - `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
@@ -38,3 +38,7 @@ Para comprobarlo, entra con cada rol y cierra sesión; prueba crear un perfil va
 Desde Inicio, pulsa Buscar recetas, selecciona ingredientes y abre las recomendaciones. Se ordenan por proporción de ingredientes disponibles; los empates se resuelven por identificador. Cada detalle muestra cantidades para una porción, preparación y faltantes. Una selección vacía solicita elegir ingredientes. Los datos son sintéticos y no se usa aprendizaje automático.
 
 Cuatro pruebas unitarias verifican selección vacía, coincidencia total, coincidencias parciales con orden estable e identificadores desconocidos. Compilación y pruebas completadas correctamente.
+
+## Ingredientes frecuentes
+
+En Tus ingredientes, Guardar agrega un ingrediente a frecuentes y Quitar lo elimina. Room conserva esta lista localmente entre cierres; no permite duplicados. La lista pertenece al dispositivo y se comparte entre perfiles demo. Las tres pruebas instrumentadas pasaron en Galaxy Tab S8, incluida inserción repetida, cierre/reapertura de la base y eliminación. Android Lint terminó sin errores.
