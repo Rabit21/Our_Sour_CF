@@ -56,3 +56,9 @@ Desde el carro, Continuar compra permite ingresar destinatario, calle y comuna f
 Mis pedidos muestra los pedidos de la sesión con sus cantidades, precios históricos y dirección. Al cerrar sesión se eliminan estos pedidos, la dirección y el carro; Room conserva únicamente los ingredientes frecuentes.
 
 Ocho pruebas unitarias y cuatro instrumentadas aprobadas en Galaxy Tab S8, incluido el recorrido de compra con rechazo y aprobación. Compilación y Lint correctos.
+
+## Administración local
+
+El perfil administrador demo permite crear, editar y eliminar productos con validación de nombre, descripción, precio y stock. El cliente no ve estas opciones. El borrado pide confirmación y quita el producto del carro, manteniendo intactos los pedidos anteriores. Los cambios de catálogo duran durante la ejecución de la app.
+
+Métricas de demostración distingue el conteo del catálogo local de las búsquedas y receta destacada ficticias. No se registran búsquedas reales todavía. Diez pruebas unitarias y cinco instrumentadas aprobadas, incluyendo CRUD de administración y navegación por rol.

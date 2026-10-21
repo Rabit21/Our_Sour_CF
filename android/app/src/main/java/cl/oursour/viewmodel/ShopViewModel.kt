@@ -17,6 +17,27 @@ class ShopViewModel : ViewModel() {
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
     val orders = _orders.asStateFlow()
     private var nextOrderId = 1
+    private var nextProductId = 6
+
+    fun saveProduct(role: Role?, id: Int, name: String, description: String, price: Long, stock: Int): String? {
+        if (role != Role.ADMIN) return "Solo el administrador demo puede editar productos."
+        if (name.trim().length !in 2..80) return "El nombre debe tener entre 2 y 80 caracteres."
+        if (description.trim().length !in 5..500) return "La descripción debe tener entre 5 y 500 caracteres."
+        if (price !in 1..10000000) return "El precio debe estar entre 1 y 10.000.000 pesos."
+        if (stock !in 0..9999) return "El stock debe estar entre 0 y 9999."
+        if (_products.value.any { it.id != id && it.name.equals(name.trim(), ignoreCase = true) }) return "Ya existe un producto con ese nombre."
+        if (id != 0 && _products.value.none { it.id == id }) return "Producto no encontrado."
+        val product = Product(if (id == 0) nextProductId++ else id, name.trim(), description.trim(), price, stock)
+        _products.value = if (id == 0) _products.value + product else _products.value.map { if (it.id == id) product else it }
+        return null
+    }
+    fun deleteProduct(role: Role?, id: Int): String? {
+        if (role != Role.ADMIN) return "Solo el administrador demo puede eliminar productos."
+        if (_products.value.none { it.id == id }) return "Producto no encontrado."
+        _products.value = _products.value.filterNot { it.id == id }
+        remove(id)
+        return null
+    }
 
     fun saveAddress(value: DeliveryAddress): String? {
         val error = CheckoutRules.validate(value)

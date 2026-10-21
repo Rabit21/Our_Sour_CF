@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import cl.oursour.view.*
+import cl.oursour.model.Role
 import cl.oursour.viewmodel.SessionViewModel
 import cl.oursour.viewmodel.RecipeViewModel
 import cl.oursour.viewmodel.ShopViewModel
@@ -59,9 +60,26 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
         }
         composable("orders") { OrdersScreen(orders, { nav.navigate("order/$it") }, { nav.popBackStack() }) }
         composable("order/{id}") { entry -> OrderDetailScreen(orders.firstOrNull { it.id == entry.arguments?.getString("id")?.toIntOrNull() }, { nav.popBackStack() }) }
+        composable("admin") {
+            if (user?.role == Role.ADMIN) AdminScreen(products, { nav.navigate("edit/$it") }, { shop.deleteProduct(user?.role, it) }, { nav.navigate("metrics") }, { nav.popBackStack() })
+            else Page("Acceso no disponible", { nav.popBackStack() }) { androidx.compose.material3.Text("Esta pantalla requiere el perfil administrador demo.") }
+        }
+        composable("edit/{id}") { entry ->
+            val id = entry.arguments?.getString("id")?.toIntOrNull() ?: -1
+            if (user?.role == Role.ADMIN) ProductFormScreen(products.firstOrNull { it.id == id }, id == 0, { name, description, price, stock ->
+                val error = shop.saveProduct(user?.role, id, name, description, price, stock)
+                if (error == null) nav.popBackStack()
+                error
+            }, { nav.popBackStack() })
+            else Page("Acceso no disponible", { nav.popBackStack() }) { androidx.compose.material3.Text("Esta pantalla requiere el perfil administrador demo.") }
+        }
+        composable("metrics") {
+            if (user?.role == Role.ADMIN) MetricsScreen(products, { nav.popBackStack() })
+            else Page("Acceso no disponible", { nav.popBackStack() }) { androidx.compose.material3.Text("Esta pantalla requiere el perfil administrador demo.") }
+        }
         composable("home") {
             val current = user
-            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onOrders = { nav.navigate("orders") }, onLogout = {
+            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onOrders = { nav.navigate("orders") }, onAdmin = { nav.navigate("admin") }, onLogout = {
                 session.logout()
                 recipes.clear()
                 shop.clearSession()
