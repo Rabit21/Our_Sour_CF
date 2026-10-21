@@ -1,94 +1,81 @@
 # Our Sour
 
-Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y simular la compra de productos.
+Proyecto académico de la asignatura DSY1105 (Desarrollo de Aplicaciones Móviles), basado en el caso Our Sour: a partir de los ingredientes que una persona tiene en casa, la app recomienda recetas de cócteles y mocktails, muestra lo que falta y permite agregar productos Our Sour a un carro para simular la compra. Todos los datos son ficticios.
 
-## Estado actual
+## Contenido del repositorio
 
-Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; incluye compra y pedidos simulados; incluye lector QR por cámara. El backend se describe en la sección Infraestructura backend.
-
-- `android/`: proyecto Android con Gradle Wrapper.
-- `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
+- `android/`: aplicación Android en Kotlin con Jetpack Compose (Gradle Wrapper).
+- `backend/`: microservicios Spring Boot: Eureka, API Gateway, `ms-auth`, `ms-catalogo` y `ms-pedidos` (Maven Wrapper). Detalle en `backend/README.md`.
 - `docs/`: modelo de datos (`modelo-datos.md`), resultados de pruebas (`pruebas.md`) y códigos QR de prueba (`qr/`).
 
-## Ejecutar Android
+## Alcance de esta entrega
 
-Abrir `android/` en Android Studio. Usar JDK 21 y disponer de Android SDK 36; la aplicación admite Android 8.0 (API 26) o posterior. Android Studio configura la ubicación local del SDK. Desde la carpeta `android/`, en Windows:
+En esta evaluación la app funciona sin conexión al backend, como pide la asignatura: usa datos locales, guarda los ingredientes frecuentes con Room y lee códigos QR con la cámara. El backend se entrega por separado y ya implementa catálogo, recetas, recomendaciones, autenticación con JWT y roles, carro y pedidos. Conectar la app con el backend mediante Retrofit corresponde a la siguiente unidad.
+
+## Aplicación Android
+
+### Ejecutar
+
+Abrir `android/` en Android Studio con JDK 21 y Android SDK 36. La app admite Android 8.0 (API 26) o posterior. Desde `android/`, en Windows:
 
 ```powershell
 .\gradlew.bat assembleDebug testDebugUnitTest
 .\gradlew.bat installDebug
 ```
 
-Para instalar se necesita un dispositivo conectado con depuración USB y autorización del equipo. El APK de depuración se genera en `app/build/outputs/apk/debug/app-debug.apk`.
+Para instalar se necesita un dispositivo con depuración USB autorizada. El APK de depuración queda en `app/build/outputs/apk/debug/app-debug.apk`.
 
-La configuración utiliza Gradle 8.13, Android Gradle Plugin 8.13.2, Kotlin 2.0.21 y Compose BOM 2024.09.00. Compilación assembleDebug completada correctamente el 21/10/2026; instalación y apertura verificadas en Samsung Galaxy Tab S8 (SM-X700). La pantalla inicial se revisó mediante captura del dispositivo. Las pruebas unitarias de lógica se describen junto a cada función.
+Versiones: Gradle 8.13, Android Gradle Plugin 8.13.2, Kotlin 2.0.21, Compose BOM 2024.09.00 con Material 3.
 
-## Alcance académico
+### Organización del código
 
-La aplicación móvil de esta evaluación funciona sin conexión al backend. Las funciones posteriores utilizarán datos ficticios y compras simuladas; no se procesarán pagos reales. Los servicios backend se entregarán por separado.
+Paquete `cl.oursour`:
 
-## Acceso de demostración
+| Paquete | Responsabilidad |
+|---|---|
+| `model` | Datos de la app: ingredientes y categorías, recetas, productos, carro, dirección, pedidos, usuario demo y formato QR |
+| `dao` | Consultas Room de ingredientes frecuentes |
+| `database` | Base Room `OurSourDatabase` |
+| `repository` | Datos ficticios de recetas y productos, regla de recomendación y acceso a Room |
+| `viewmodel` | Estado de sesión, selección de ingredientes, frecuentes, catálogo, carro y pedidos (`StateFlow`) |
+| `view` | Pantallas Compose |
+| `navigation` | Rutas y navegación con Navigation Compose |
+| `ui.theme` | Colores, tipografía y tema Material 3 |
 
-La pantalla de entrada permite elegir cliente o administrador ficticios y crear un perfil temporal de cliente con nombre y correo de ejemplo. No se guardan contraseñas ni se autentican cuentas reales. Cerrar sesión devuelve al acceso y elimina el destino anterior de la navegación.
+Dependencias principales: Navigation Compose 2.9.5 (navegación entre pantallas), Lifecycle ViewModel Compose 2.10.0 (ViewModel en Compose), Room 2.8.3 con KSP (base de datos local) y ZXing Android Embedded 4.3.0 (lectura de QR con la cámara, https://github.com/journeyapps/zxing-android-embedded).
 
-Para comprobarlo, entra con cada rol y cierra sesión; prueba crear un perfil vacío y luego uno con nombre y correo válido. Las dos pruebas instrumentadas de acceso y navegación pasaron en Galaxy Tab S8 con `gradlew.bat connectedDebugAndroidTest`.
+### Funcionalidades
 
-## Recetas por ingredientes
+- **Acceso de demostración**: entrar como cliente o administrador ficticios, o crear un perfil temporal de cliente con nombre y correo. No se guardan contraseñas ni se autentican cuentas reales. Cerrar sesión vuelve al acceso y borra el historial de navegación.
+- **Ingredientes**: selección agrupada por categoría (productos Our Sour, destilados y licores, frutas y hierbas, jugos y mixers, otros).
+- **Ingredientes frecuentes (Room)**: guardar y quitar ingredientes frecuentes, sin duplicados. La lista se conserva al cerrar la app y se comparte entre perfiles demo del dispositivo.
+- **Recetas recomendadas**: ordenadas por proporción de ingredientes disponibles, de mayor a menor; los empates se resuelven por identificador de receta. No se usa aprendizaje automático. Sin selección, la app pide elegir ingredientes.
+- **Detalle de receta**: cantidades para una porción, preparación, ingredientes disponibles y faltantes, botones para agregar al carro los productos que cubren lo que falta y el producto Our Sour sugerido para la receta. Si un producto no tiene stock o fue eliminado, se indica.
+- **Catálogo y carro**: productos con precio en pesos y stock; aumentar, reducir y eliminar líneas, con cantidades de 1 a 99 sin superar el stock.
+- **Compra simulada**: dirección con destinatario, calle y comuna (Santiago, Providencia o Maipú); despacho de $3.500, gratis desde $30.000 en productos; resumen con pago simulado aprobado o rechazado. No se piden datos de tarjeta ni se hacen cobros.
+- **Pedidos**: confirmación, lista y detalle con precios históricos y dirección. El carro, la dirección y los pedidos duran mientras la sesión está abierta.
+- **Lector QR**: lee códigos con formato `OURSOUR:PRODUCTO:1` y abre el producto. Informa formato inválido, producto inexistente y permiso de cámara rechazado, con acceso a ajustes. Los códigos de `docs/qr/` sirven para probarlo. No se guardan fotos.
+- **Administración**: el perfil administrador crea, edita y elimina productos con validación de nombre, descripción, precio y stock; el borrado pide confirmación. El cliente no ve estas opciones. La pantalla de métricas muestra el conteo real del catálogo local y datos de búsqueda identificados como ejemplos ficticios.
 
-Desde Inicio, pulsa Buscar recetas, selecciona ingredientes y abre las recomendaciones. Se ordenan por proporción de ingredientes disponibles; los empates se resuelven por identificador. Cada detalle muestra cantidades para una porción, preparación y faltantes. Una selección vacía solicita elegir ingredientes. Los ingredientes se muestran agrupados por categoría (productos Our Sour, destilados, frutas y hierbas, jugos y mixers, otros). Los datos son sintéticos y no se usa aprendizaje automático.
+### Pruebas
 
-El detalle de receta conecta con la compra: lista los productos del catálogo que cubren los ingredientes faltantes con un botón para agregarlos al carro y muestra el producto Our Sour sugerido para esa receta, con acceso a su ficha. Si el producto no tiene stock o fue eliminado por el administrador, la app lo indica. Cuatro pruebas unitarias cubren la relación entre faltantes y productos, productos eliminados y categorías; una prueba instrumentada recorre en Galaxy Tab S8 la selección de ingredientes, la receta y el agregado al carro.
+15 pruebas unitarias, 6 pruebas instrumentadas en Samsung Galaxy Tab S8 y Android Lint sin errores. El detalle está en `docs/pruebas.md`.
 
-Cuatro pruebas unitarias verifican selección vacía, coincidencia total, coincidencias parciales con orden estable e identificadores desconocidos. Compilación y pruebas completadas correctamente.
+## Backend
 
-## Ingredientes frecuentes
+Cinco módulos con Spring Boot 3.5.16 y Spring Cloud 2025.0.3 sobre una base MariaDB `our_sour`, con tablas separadas por prefijo de servicio (`auth_`, `catalogo_`, `pedidos_`) y sin claves foráneas entre servicios:
 
-En Tus ingredientes, Guardar agrega un ingrediente a frecuentes y Quitar lo elimina. Room conserva esta lista localmente entre cierres; no permite duplicados. La lista pertenece al dispositivo y se comparte entre perfiles demo. Las tres pruebas instrumentadas pasaron en Galaxy Tab S8, incluida inserción repetida, cierre/reapertura de la base y eliminación. Android Lint terminó sin errores.
+- **Eureka** (8761): registro y descubrimiento de servicios.
+- **API Gateway** (8080): rutas `/api/auth`, `/api/catalogo` y `/api/pedidos`, y primera validación del token y del rol.
+- **ms-auth** (8081): registro, login con BCrypt y emisión de JWT con rol CLIENTE o ADMIN.
+- **ms-catalogo** (8082): ingredientes con categoría, productos, recetas con dosificación y producto asociado, y motor de recomendación con la misma regla de la app.
+- **ms-pedidos** (8083): carro por usuario, despacho, checkout con pago simulado y pedidos con precios históricos. Precio y stock se consultan al catálogo por REST.
 
-## Catálogo y carro
+La configuración, las variables de entorno, los endpoints y las reglas de acceso están en `backend/README.md`. Hay 31 pruebas unitarias y un recorrido REST contra MariaDB descrito en `docs/pruebas.md`.
 
-Inicio → Explorar catálogo muestra productos ficticios con precio en CLP y stock. Desde el detalle se agregan al carro; allí se aumentan/reducen cantidades y se eliminan líneas. El subtotal se calcula con pesos enteros. Se rechazan cantidades fuera de 1 a 99 o superiores al stock. El carro es temporal y se limpia al cerrar sesión.
+## Limitaciones conocidas
 
-Compilación y seis pruebas unitarias aprobadas, incluidas operaciones del carro, subtotal, cantidades inválidas y productos sin stock.
-
-## Compra y pedidos de demostración
-
-Desde el carro, Continuar compra permite ingresar destinatario, calle y comuna ficticios. El despacho demo cuesta $3.500 y es gratis desde $30.000 en productos. El resumen permite simular pago rechazado (conserva el carro) o aprobado (genera pedido y descuenta stock local). No se solicitan datos de tarjeta ni se hacen cobros o envíos reales.
-
-Mis pedidos muestra los pedidos de la sesión con sus cantidades, precios históricos y dirección. Al cerrar sesión se eliminan estos pedidos, la dirección y el carro; Room conserva únicamente los ingredientes frecuentes.
-
-Ocho pruebas unitarias y cuatro instrumentadas aprobadas en Galaxy Tab S8, incluido el recorrido de compra con rechazo y aprobación. Compilación y Lint correctos.
-
-## Administración local
-
-El perfil administrador demo permite crear, editar y eliminar productos con validación de nombre, descripción, precio y stock. El cliente no ve estas opciones. El borrado pide confirmación y quita el producto del carro, manteniendo intactos los pedidos anteriores. Los cambios de catálogo duran durante la ejecución de la app.
-
-Métricas de demostración distingue el conteo del catálogo local de las búsquedas y receta destacada ficticias. No se registran búsquedas reales todavía. Diez pruebas unitarias y cinco instrumentadas aprobadas, incluyendo CRUD de administración y navegación por rol.
-
-## Lector QR por cámara
-
-Inicio → Leer QR abre la cámara y resuelve códigos con formato `OURSOUR:PRODUCTO:1` contra el catálogo local. La app informa formato inválido, producto inexistente y permiso rechazado, con acceso a ajustes para recuperarlo. Una captura devuelve un solo resultado; se puede iniciar otra lectura al volver. No se guardan fotos.
-
-Se utiliza ZXing Android Embedded 4.3.0: https://github.com/journeyapps/zxing-android-embedded. Los códigos de `docs/qr/` permiten probar producto 1, formato inválido y producto inexistente. La lectura válida se comprobó en Galaxy Tab S8; el usuario confirmó los casos inválido e inexistente. El permiso rechazado se verificó directamente en la tablet. Compilación, once pruebas unitarias y Lint correctos.
-
-## Infraestructura backend
-
-Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Además de la infraestructura y los endpoints de estado, ya están implementados el catálogo de productos e ingredientes, las recetas con recomendaciones y la autenticación con JWT y roles, y el carro con pedidos simulados. Las métricas reales y la conexión con la app quedan para la siguiente unidad.
-
-## Catálogo backend
-
-Productos e ingredientes tienen CRUD persistente en our_sour, validación de campos, rechazo de duplicados y respuestas para recursos inexistentes. Las rutas están documentadas en backend/README.md. Seis pruebas unitarias cubren alta, duplicados, actualización e inexistentes en los servicios de catálogo; el CRUD se comprobó contra MariaDB a través del Gateway, incluida la persistencia tras reiniciar el servicio. Crear, editar y eliminar requieren rol administrador.
-
-## Recetas y recomendaciones backend
-
-`ms-catalogo` guarda recetas con su dosificación (cantidad y unidad por ingrediente para una porción) e incluye las tres recetas sintéticas de la app. `GET /api/catalogo/recetas/recomendaciones?ingredientes=1,2` aplica la misma regla que Android: proporción de ingredientes disponibles, orden descendente, empate por identificador y lista de faltantes. Una selección vacía o con ingredientes desconocidos devuelve una lista vacía. No se usa aprendizaje automático. La app Android todavía no consume esta API.
-
-Ocho pruebas unitarias cubren el motor de recomendación (mismos casos que Android) y las validaciones de recetas. Cada ingrediente tiene categoría y cada receta un producto asociado, igual que en la app. El recorrido REST se comprobó contra MariaDB a través del Gateway.
-
-## Autenticación backend
-
-`ms-auth` registra usuarios con contraseña cifrada (BCrypt), inicia sesión y entrega un token JWT con el rol CLIENTE o ADMIN. El Gateway y cada servicio validan ese token: el catálogo se puede consultar sin sesión, solo un administrador puede modificarlo y los pedidos requieren sesión. Seis pruebas unitarias y un recorrido completo por el Gateway (incluidos 401 y 403) se comprobaron contra MariaDB. En esta evaluación la app Android sigue usando su acceso de demostración local; la conexión con estos endpoints corresponde a la siguiente unidad.
-
-## Carro y pedidos backend
-
-`ms-pedidos` mantiene el carro de cada usuario autenticado, calcula subtotal y despacho con los precios y el stock que consulta a `ms-catalogo`, simula el pago (aprobado o rechazado) y guarda el pedido con precios históricos. Cada cliente ve solo sus pedidos; el administrador puede verlos todos y cambiar su estado. Siete pruebas unitarias y un recorrido completo por el Gateway contra MariaDB respaldan estas reglas, incluido el caso de catálogo no disponible. La app Android mantiene su propio carro local en esta evaluación.
+- La app no consume el backend todavía: el acceso es una simulación local y el catálogo, el carro y los pedidos viven en memoria durante la sesión.
+- Las métricas de administración usan datos de ejemplo; el registro de búsquedas reales no está implementado.
+- No se genera APK firmado en esta entrega.
+- En el backend, descontar stock y guardar el pedido ocurren en servicios distintos, sin transacción distribuida.

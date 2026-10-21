@@ -22,13 +22,26 @@ Todos los servicios escuchan en 127.0.0.1 para pruebas locales:
 
 Iniciar Eureka primero y luego los otros procesos en terminales separadas. El Gateway resuelve los servicios registrados en Eureka. Cada proceso publica `/actuator/health`. Las rutas iniciales `/api/auth/estado`, `/api/catalogo/estado` y `/api/pedidos/estado` consultan `SELECT 1` en la base our_sour.
 
+## Ejemplo de uso
+
+Con los servicios en marcha, desde PowerShell:
+
+```powershell
+$login = Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8080/api/auth/login -ContentType 'application/json' -Body '{"email":"<correo>","password":"<clave>"}'
+$h = @{ Authorization = "Bearer $($login.token)" }
+Invoke-RestMethod 'http://127.0.0.1:8080/api/catalogo/recetas/recomendaciones?ingredientes=1,2'
+Invoke-RestMethod -Method Put -Uri http://127.0.0.1:8080/api/pedidos/carro/lineas/1 -Headers $h -ContentType 'application/json' -Body '{"cantidad":2}'
+```
+
+Primero se registra un cliente con `POST /api/auth/registro`. Los identificadores de productos e ingredientes se consultan con `GET /api/catalogo/productos` y `GET /api/catalogo/ingredientes`.
+
 ## Estado comprobado
 
-Los cinco módulos compilaron y generaron sus JAR. La infraestructura inicial no incluía entidades de negocio; el catálogo se describe en la sección siguiente. El arranque, registro en Eureka y las tres rutas de estado se verificaron con MariaDB 10.4.32 en el puerto 3308. Los tres servicios utilizan la base exclusiva our_sour, con tablas separadas por prefijos de servicio. No se presenta la compilación como prueba de funcionamiento de la base de datos.
+`mvnw.cmd clean package` compila los cinco módulos y ejecuta 31 pruebas unitarias. El arranque, el registro en Eureka, las rutas de estado y todos los endpoints de las secciones siguientes se verificaron con MariaDB 10.4.32 en el puerto 3308 a través del Gateway; el detalle está en `../docs/pruebas.md`. Los tres servicios de negocio usan la base exclusiva our_sour, con tablas separadas por prefijos de servicio (`auth_`, `catalogo_`, `pedidos_`).
 
 ## Catálogo persistente
 
-`ms-catalogo` almacena productos e ingredientes en `our_sour.catalogo_productos` y `our_sour.catalogo_ingredientes`. Al arrancar con tablas vacías incorpora datos sintéticos. El servidor no reemplaza registros existentes al reiniciar.
+`ms-catalogo` almacena productos e ingredientes en `our_sour.catalogo_productos` y `our_sour.catalogo_ingredientes`. Al arrancar crea, si no existen por nombre, los datos sintéticos de demostración. No reemplaza registros existentes ni cambia precios o stock al reiniciar.
 
 Rutas a través de `http://127.0.0.1:8080`:
 
