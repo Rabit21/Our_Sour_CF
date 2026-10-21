@@ -8,7 +8,7 @@ Desde esta carpeta, ejecutar `mvnw.cmd package` en Windows o `./mvnw package` en
 
 ## Configuración local
 
-Se utiliza MariaDB 10.4.32, compatible con el protocolo MySQL. Crear la base exclusiva our_sour con `create-databases.sql` y configurar las variables de entorno MYSQL_HOST, MYSQL_PORT, MYSQL_USER y MYSQL_PASSWORD en las terminales que ejecuten los servicios. `.env.example` documenta los nombres; Spring no carga automáticamente ese archivo. No guardar contraseñas en archivos versionados.
+Se utiliza MariaDB 10.4.32, compatible con el protocolo MySQL. Crear la base exclusiva our_sour con `create-databases.sql` y configurar las variables de entorno MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD y JWT_SECRET (al menos 32 caracteres, el mismo en Gateway y servicios) en las terminales que ejecuten los servicios. ADMIN_EMAIL y ADMIN_PASSWORD son opcionales y crean el administrador ficticio al arrancar ms-auth. `.env.example` documenta los nombres; Spring no carga automáticamente ese archivo. No guardar contraseñas en archivos versionados.
 
 Todos los servicios escuchan en 127.0.0.1 para pruebas locales:
 
@@ -24,7 +24,7 @@ Iniciar Eureka primero y luego los otros procesos en terminales separadas. El Ga
 
 ## Estado comprobado
 
-Los cinco módulos compilaron y generaron sus JAR. La infraestructura inicial no incluía entidades de negocio; el catálogo se describe en la sección siguiente. La autenticación todavía no está implementada. El arranque, registro en Eureka y las tres rutas de estado se verificaron con MariaDB 10.4.32 en el puerto 3308. Los tres servicios utilizan la base exclusiva our_sour, con tablas separadas por prefijos de servicio. No se presenta la compilación como prueba de funcionamiento de la base de datos.
+Los cinco módulos compilaron y generaron sus JAR. La infraestructura inicial no incluía entidades de negocio; el catálogo se describe en la sección siguiente. El arranque, registro en Eureka y las tres rutas de estado se verificaron con MariaDB 10.4.32 en el puerto 3308. Los tres servicios utilizan la base exclusiva our_sour, con tablas separadas por prefijos de servicio. No se presenta la compilación como prueba de funcionamiento de la base de datos.
 
 ## Catálogo persistente
 
@@ -63,4 +63,27 @@ Cada recomendación incluye `recetaId`, `nombre`, `disponibles`, `total`, `propo
 
 Pruebas: `MotorRecomendacionTest` reproduce los casos de Android (selección vacía, coincidencia total, parciales con empate e ingrediente desconocido) y `RecetaServiceTest` comprueba ingrediente repetido, ingrediente o producto inexistente, exceso de selección y receta inexistente; `IngredienteServiceTest` comprueba que la categoría se guarda.
 
-Estas rutas todavía no tienen autenticación y solo escuchan en loopback. La seguridad se incorporará antes de la entrega completa.
+La lectura (GET) del catálogo es pública; crear, editar y eliminar exige un token con rol ADMIN (ver Autenticación y roles).
+
+## Autenticación y roles
+
+`ms-auth` guarda usuarios en `auth_usuarios` con la contraseña cifrada con BCrypt y emite tokens JWT firmados con HS256 (jjwt 0.12.6, una hora de duración). El token lleva el id del usuario como `sub` y los claims `email`, `nombre` y `rol`.
+
+| Método | Ruta | Acceso | Resultado |
+|---|---|---|---|
+| POST | /api/auth/registro | Público | `{"nombre", "email", "password"}` → 201 con el usuario (siempre rol CLIENTE); 400 datos inválidos; 409 correo repetido |
+| POST | /api/auth/login | Público | `{"email", "password"}` → 200 `{"token", "tipo": "Bearer", "expiraEnSegundos", "usuario"}`; 401 credenciales inválidas |
+| GET | /api/auth/perfil | Token | Datos del usuario del token; 401 sin token o con token inválido |
+
+El token se envía en la cabecera `Authorization: Bearer <token>`. El registro no permite elegir rol: un campo `rol` en la solicitud se ignora. El administrador ficticio solo se crea si existen ADMIN_EMAIL y ADMIN_PASSWORD en el entorno local; no hay contraseñas escritas en el código.
+
+Reglas aplicadas en el Gateway y, de nuevo, en cada servicio (Spring Security como servidor de recursos con el mismo secreto):
+
+| Ruta | Regla |
+|---|---|
+| /api/auth/registro, /api/auth/login, rutas `/estado` | Públicas |
+| GET /api/catalogo/** | Pública |
+| POST, PUT, DELETE /api/catalogo/** | Rol ADMIN (sin token 401, cliente 403) |
+| /api/pedidos/** | Rol CLIENTE o ADMIN |
+
+Pruebas: `AuthServiceTest` (hash BCrypt y rol CLIENTE en registro, correo repetido, contraseña incorrecta y correo inexistente con 401, login correcto) y `JwtServiceTest` (claims del token, rechazo con otro secreto y secreto corto). El recorrido por el Gateway contra MariaDB comprobó registro 201, duplicado 409, datos inválidos 400, login incorrecto 401, perfil sin token 401 y con token 200, catálogo público, escritura de catálogo 401 sin token, 403 como cliente y 201/204 como administrador, y que ms-catalogo rechaza directamente (sin Gateway) solicitudes sin token o de cliente.
