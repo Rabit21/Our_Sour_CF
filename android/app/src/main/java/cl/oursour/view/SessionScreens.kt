@@ -53,10 +53,11 @@ fun RegisterScreen(onBack: () -> Unit, onRegister: (String, String) -> String?) 
 }
 
 @Composable
-fun HomeScreen(user: DemoUser, onLogout: () -> Unit) {
+fun HomeScreen(user: DemoUser, onRecipes: () -> Unit, onLogout: () -> Unit) {
     Page("Hola, ${user.name}") {
         Text("Rol: ${user.role.name} · Sesión de demostración")
         Text("Tu espacio para descubrir recetas y preparar tu próximo sour.")
+        Button(onClick = onRecipes) { Text("Buscar recetas") }
         OutlinedButton(onClick = onLogout) { Text("Cerrar sesión") }
     }
 }
