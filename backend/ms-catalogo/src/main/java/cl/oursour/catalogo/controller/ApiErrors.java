@@ -14,7 +14,10 @@ public class ApiErrors {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> validation(MethodArgumentNotValidException error) {
-        return Map.of("error", "Datos inválidos: revisa nombre, descripción, precio y stock.");
+        String campo = error.getBindingResult().getFieldErrors().isEmpty()
+                ? "solicitud"
+                : error.getBindingResult().getFieldErrors().get(0).getField();
+        return Map.of("error", "Datos inválidos en " + campo + ".");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

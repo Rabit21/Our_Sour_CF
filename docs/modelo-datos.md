@@ -12,7 +12,7 @@ Los tres servicios usan una base exclusiva MariaDB llamada our_sour. Cada servic
 
 ## Diseño lógico
 
-Este es el diseño de las entidades de negocio. Por ahora existen las tablas `catalogo_productos` y `catalogo_ingredientes`, creadas por JPA en our_sour; el resto se agregará al implementar y verificar cada conjunto.
+Este es el diseño de las entidades de negocio. Por ahora existen las tablas `catalogo_productos`, `catalogo_ingredientes`, `catalogo_recetas` y `catalogo_receta_ingredientes`, creadas por JPA en our_sour; el resto se agregará al implementar y verificar cada conjunto.
 
 ```mermaid
 erDiagram
@@ -81,7 +81,7 @@ erDiagram
     PEDIDO ||--|{ LINEA_PEDIDO : conserva
 ```
 
-La dosificación pertenece a la relación entre receta e ingrediente. El pedido conserva nombre y precio histórico; editar un producto no debe modificar una compra anterior. El servidor calcula subtotal, despacho y total. El identificador del propietario se obtiene del usuario autenticado, no de un campo confiado al cliente.
+La dosificación pertenece a la relación entre receta e ingrediente; `catalogo_receta_ingredientes` tiene claves foráneas a receta e ingrediente (ambas del mismo servicio) y una restricción única por par receta-ingrediente. El pedido conserva nombre y precio histórico; editar un producto no debe modificar una compra anterior. El servidor calcula subtotal, despacho y total. El identificador del propietario se obtiene del usuario autenticado, no de un campo confiado al cliente.
 
 ## Almacenamiento móvil de esta evaluación
 

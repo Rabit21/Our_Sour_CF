@@ -71,8 +71,14 @@ Se utiliza ZXing Android Embedded 4.3.0: https://github.com/journeyapps/zxing-an
 
 ## Infraestructura backend
 
-Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Además de la infraestructura y los endpoints de estado, ya está implementado el catálogo de productos e ingredientes; recetas, autenticación y pedidos backend siguen pendientes.
+Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Además de la infraestructura y los endpoints de estado, ya están implementados el catálogo de productos e ingredientes y las recetas con recomendaciones; autenticación y pedidos backend siguen pendientes.
 
 ## Catálogo backend
 
 Productos e ingredientes tienen CRUD persistente en our_sour, validación de campos, rechazo de duplicados y respuestas para recursos inexistentes. Las rutas están documentadas en backend/README.md. Seis pruebas unitarias cubren alta, duplicados, actualización e inexistentes en los servicios de catálogo; el CRUD se comprobó contra MariaDB a través del Gateway, incluida la persistencia tras reiniciar el servicio. La autenticación backend todavía está pendiente.
+
+## Recetas y recomendaciones backend
+
+`ms-catalogo` guarda recetas con su dosificación (cantidad y unidad por ingrediente para una porción) e incluye las tres recetas sintéticas de la app. `GET /api/catalogo/recetas/recomendaciones?ingredientes=1,2` aplica la misma regla que Android: proporción de ingredientes disponibles, orden descendente, empate por identificador y lista de faltantes. Una selección vacía o con ingredientes desconocidos devuelve una lista vacía. No se usa aprendizaje automático. La app Android todavía no consume esta API.
+
+Ocho pruebas unitarias cubren el motor de recomendación (mismos casos que Android) y las validaciones de recetas. El recorrido REST se comprobó contra MariaDB a través del Gateway.
