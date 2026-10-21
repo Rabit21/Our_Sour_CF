@@ -8,7 +8,7 @@ Android contiene una pantalla inicial con Material 3, colores crema, verde oscur
 
 - `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
-- `docs/`: carpeta destinada a documentación de ejecución, datos y pruebas.
+- `docs/`: modelo de datos (`modelo-datos.md`), resultados de pruebas (`pruebas.md`) y códigos QR de prueba (`qr/`).
 
 ## Ejecutar Android
 
