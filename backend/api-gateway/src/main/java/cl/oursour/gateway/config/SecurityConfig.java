@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/api/auth/estado", "/api/pedidos/estado").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/catalogo/**").permitAll()
                         .pathMatchers("/api/catalogo/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PATCH, "/api/pedidos/*/estado").hasRole("ADMIN")
                         .pathMatchers("/api/pedidos/**").hasAnyRole("CLIENTE", "ADMIN")
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(rolesDelToken())));

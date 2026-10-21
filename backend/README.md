@@ -85,5 +85,28 @@ Reglas aplicadas en el Gateway y, de nuevo, en cada servicio (Spring Security co
 | GET /api/catalogo/** | Pública |
 | POST, PUT, DELETE /api/catalogo/** | Rol ADMIN (sin token 401, cliente 403) |
 | /api/pedidos/** | Rol CLIENTE o ADMIN |
+| PATCH /api/pedidos/{id}/estado | Rol ADMIN |
+| POST /api/catalogo/productos/stock/descontar | Rol SERVICIO (solo el token interno de ms-pedidos) |
 
 Pruebas: `AuthServiceTest` (hash BCrypt y rol CLIENTE en registro, correo repetido, contraseña incorrecta y correo inexistente con 401, login correcto) y `JwtServiceTest` (claims del token, rechazo con otro secreto y secreto corto). El recorrido por el Gateway contra MariaDB comprobó registro 201, duplicado 409, datos inválidos 400, login incorrecto 401, perfil sin token 401 y con token 200, catálogo público, escritura de catálogo 401 sin token, 403 como cliente y 201/204 como administrador, y que ms-catalogo rechaza directamente (sin Gateway) solicitudes sin token o de cliente.
+
+## Carro y pedidos
+
+`ms-pedidos` guarda un carro por usuario (`pedidos_carros`, `pedidos_lineas_carro`) y los pedidos confirmados (`pedidos_pedidos`, `pedidos_lineas_pedido`). El usuario siempre se toma del token, nunca de la URL ni del cuerpo. No hay tabla de productos ni claves foráneas hacia otros servicios: el carro guarda solo id de producto y cantidad, y el precio y el stock se consultan a `ms-catalogo` por REST (Eureka resuelve `http://ms-catalogo`).
+
+| Método | Ruta | Resultado |
+|---|---|---|
+| GET | /api/pedidos/carro | Líneas con precio actual, subtotal, despacho y total |
+| PUT | /api/pedidos/carro/lineas/{productoId} | `{"cantidad": 1..99}`; 400 cantidad inválida, 404 producto inexistente, 409 supera el stock |
+| DELETE | /api/pedidos/carro/lineas/{productoId} | Quita la línea |
+| DELETE | /api/pedidos/carro | Vacía el carro (204) |
+| POST | /api/pedidos/checkout | `{"destinatario", "calle", "comuna", "pagoAprobado"}` → 201 con el pedido; 400 carro vacío, dirección o comuna inválida; 402 pago simulado rechazado (el carro se conserva); 409 sin stock o producto eliminado |
+| GET | /api/pedidos | Pedidos propios (el administrador ve todos) |
+| GET | /api/pedidos/{id} | Detalle; un pedido ajeno responde 404 |
+| PATCH | /api/pedidos/{id}/estado | `{"estado": "SOLICITADO" \| "EN_PREPARACION" \| "ENTREGADO"}`, solo ADMIN |
+
+Reglas: despacho de $3.500, gratis desde $30.000 en productos, para Santiago, Providencia y Maipú (igual que la app). El servidor recalcula precios, subtotal, despacho y total con el catálogo; cualquier monto enviado por el cliente se ignora. El pago es una simulación: `pagoAprobado` indica el resultado y no se procesan tarjetas. Al aprobarse, `ms-pedidos` descuenta el stock con un token interno de rol SERVICIO (60 segundos) en una sola transacción del catálogo, que bloquea las filas y revierte todo si un producto no alcanza; luego guarda el pedido con nombre y precio históricos en estado SOLICITADO y vacía el carro. Si el catálogo no responde, las operaciones devuelven 503.
+
+Limitación: el descuento de stock y el guardado del pedido ocurren en dos servicios distintos; si el guardado fallara después del descuento, el stock no se restituye automáticamente.
+
+Pruebas: `PedidoServiceTest` (siete casos: regla de despacho, carro vacío y comuna inválida, pago rechazado que conserva el carro, pago aprobado con precios del servidor, descuento y vaciado, stock insuficiente, pedido ajeno y cantidad mayor al stock) y dos casos nuevos de `ProductoServiceTest` para el descuento. El recorrido por el Gateway contra MariaDB (30 comprobaciones) incluyó carro sin token 401, cantidades inválidas, 404 y 409, despacho cobrado y gratis, comuna inválida 400, pago rechazado 402 con carro intacto, pedido 201 con total del servidor aunque el cliente envió otro, stock descontado, carro vacío tras comprar, pedido ajeno 404, cambio de estado 403 para cliente y 200 para administrador, stock modificado antes de pagar 409, descuento directo de stock rechazado para cliente y administrador, catálogo detenido 503 y pedidos conservados tras reiniciar el servicio.

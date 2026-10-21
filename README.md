@@ -73,7 +73,7 @@ Se utiliza ZXing Android Embedded 4.3.0: https://github.com/journeyapps/zxing-an
 
 ## Infraestructura backend
 
-Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Además de la infraestructura y los endpoints de estado, ya están implementados el catálogo de productos e ingredientes, las recetas con recomendaciones y la autenticación con JWT y roles; los pedidos backend siguen pendientes.
+Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Además de la infraestructura y los endpoints de estado, ya están implementados el catálogo de productos e ingredientes, las recetas con recomendaciones y la autenticación con JWT y roles, y el carro con pedidos simulados. Las métricas reales y la conexión con la app quedan para la siguiente unidad.
 
 ## Catálogo backend
 
@@ -88,3 +88,7 @@ Ocho pruebas unitarias cubren el motor de recomendación (mismos casos que Andro
 ## Autenticación backend
 
 `ms-auth` registra usuarios con contraseña cifrada (BCrypt), inicia sesión y entrega un token JWT con el rol CLIENTE o ADMIN. El Gateway y cada servicio validan ese token: el catálogo se puede consultar sin sesión, solo un administrador puede modificarlo y los pedidos requieren sesión. Seis pruebas unitarias y un recorrido completo por el Gateway (incluidos 401 y 403) se comprobaron contra MariaDB. En esta evaluación la app Android sigue usando su acceso de demostración local; la conexión con estos endpoints corresponde a la siguiente unidad.
+
+## Carro y pedidos backend
+
+`ms-pedidos` mantiene el carro de cada usuario autenticado, calcula subtotal y despacho con los precios y el stock que consulta a `ms-catalogo`, simula el pago (aprobado o rechazado) y guarda el pedido con precios históricos. Cada cliente ve solo sus pedidos; el administrador puede verlos todos y cambiar su estado. Siete pruebas unitarias y un recorrido completo por el Gateway contra MariaDB respaldan estas reglas, incluido el caso de catálogo no disponible. La app Android mantiene su propio carro local en esta evaluación.

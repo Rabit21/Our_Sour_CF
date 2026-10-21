@@ -5,10 +5,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import cl.oursour.catalogo.dto.DescuentoStockRequest;
 import cl.oursour.catalogo.dto.ProductoDto;
 import cl.oursour.catalogo.model.Producto;
 import cl.oursour.catalogo.repository.ProductoRepository;
@@ -80,5 +82,40 @@ class ProductoServiceTest {
         assertEquals(HttpStatus.NOT_FOUND,
                 assertThrows(ResponseStatusException.class, () -> service.delete(99L)).getStatusCode());
         verify(repository, never()).delete(any());
+    }
+
+    private static Producto producto(long id, int stock) {
+        Producto p = new Producto();
+        p.setId(id);
+        p.setNombre("Producto " + id);
+        p.setStock(stock);
+        return p;
+    }
+
+    private static DescuentoStockRequest linea(long productoId, int cantidad) {
+        DescuentoStockRequest r = new DescuentoStockRequest();
+        r.setProductoId(productoId);
+        r.setCantidad(cantidad);
+        return r;
+    }
+
+    @Test
+    void stockIsDiscountedAddingRepeatedLines() {
+        Producto limon = producto(1, 10);
+        when(repository.bloquearPorId(1L)).thenReturn(Optional.of(limon));
+
+        service.descontarStock(List.of(linea(1, 3), linea(1, 2)));
+
+        assertEquals(5, limon.getStock());
+    }
+
+    @Test
+    void insufficientStockIsConflict() {
+        when(repository.bloquearPorId(1L)).thenReturn(Optional.of(producto(1, 2)));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+                () -> service.descontarStock(List.of(linea(1, 3))));
+
+        assertEquals(HttpStatus.CONFLICT, error.getStatusCode());
     }
 }

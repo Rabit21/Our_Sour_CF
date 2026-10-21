@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Lectura pública del catálogo; crear, editar y eliminar solo con rol ADMIN.
+ * El descuento de stock solo lo usa ms-pedidos con un token de rol SERVICIO.
  * El Gateway aplica las mismas reglas, pero el servicio no confía solo en él.
  */
 @Configuration
@@ -28,6 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/catalogo/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/catalogo/productos/stock/descontar").hasRole("SERVICIO")
                         .requestMatchers("/api/catalogo/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(rolesDelToken())));

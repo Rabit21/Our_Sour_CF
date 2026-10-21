@@ -12,7 +12,7 @@ Los tres servicios usan una base exclusiva MariaDB llamada our_sour. Cada servic
 
 ## Diseño lógico
 
-Este es el diseño de las entidades de negocio. Por ahora existen las tablas `auth_usuarios`, `catalogo_productos`, `catalogo_ingredientes`, `catalogo_recetas` y `catalogo_receta_ingredientes`, creadas por JPA en our_sour; el resto se agregará al implementar y verificar cada conjunto.
+Este es el diseño de las entidades de negocio. Todas las tablas existen en our_sour y las crea JPA: `auth_usuarios`; `catalogo_productos`, `catalogo_ingredientes`, `catalogo_recetas` y `catalogo_receta_ingredientes`; `pedidos_carros`, `pedidos_lineas_carro`, `pedidos_pedidos` y `pedidos_lineas_pedido`.
 
 ```mermaid
 erDiagram
@@ -68,6 +68,7 @@ erDiagram
         decimal despacho
         decimal total
         string estado
+        datetime creado_en
     }
     LINEA_PEDIDO {
         long id PK
