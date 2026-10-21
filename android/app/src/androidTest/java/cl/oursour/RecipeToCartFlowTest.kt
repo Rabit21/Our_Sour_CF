@@ -9,9 +9,9 @@ class RecipeToCartFlowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test fun missingIngredientCanBeAddedToCartFromRecipe() {
-        compose.onNodeWithText("Entrar como cliente demo").performClick()
-        compose.onNodeWithText("Buscar recetas").performClick()
-        compose.onNodeWithText("Frutas y hierbas").assertExists()
+        compose.onNodeWithText("Entrar como cliente demo").performScrollTo().performClick()
+        compose.onNodeWithText("Buscar recetas").performScrollTo().performClick()
+        compose.onNodeWithText("FRUTAS Y HIERBAS").assertExists()
         // Orden por categoría: Mix sour, Pisco, Limón... se marca Limón (tercera casilla)
         compose.onAllNodes(isToggleable())[2].performScrollTo().performClick()
         compose.onNodeWithText("Ver recetas recomendadas").performScrollTo().performClick()

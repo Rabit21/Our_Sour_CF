@@ -28,6 +28,8 @@ Qué cubren:
 - Administración: rol requerido, validaciones y CRUD con identificadores estables.
 - QR: formato válido, inválido, identificador inexistente, vacío y desbordado.
 
+Revisión visual del diseño en la tablet, con capturas de bienvenida, inicio de cliente y administrador, ingredientes, recomendaciones, detalle de receta, carro, dirección, resumen, confirmación, pedidos, catálogo, producto, QR, administración, formulario y métricas, en vertical, y bienvenida e ingredientes en horizontal. También se comprobó que en una ventana flotante pequeña el nombre de la imagen de bienvenida sigue completo.
+
 Pruebas manuales en tablet: lectura física de los códigos de `docs/qr/` (producto 1, formato inválido y producto inexistente) y rechazo del permiso de cámara con acceso a ajustes.
 
 ## Backend

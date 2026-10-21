@@ -44,10 +44,14 @@ Paquete `cl.oursour`:
 
 Dependencias principales: Navigation Compose 2.9.5 (navegación entre pantallas), Lifecycle ViewModel Compose 2.10.0 (ViewModel en Compose), Room 2.8.3 con KSP (base de datos local) y ZXing Android Embedded 4.3.0 (lectura de QR con la cámara, https://github.com/journeyapps/zxing-android-embedded).
 
+### Diseño
+
+Material 3 con una paleta tomada de la imagen de bienvenida: verde oliva profundo, crema, limón y dorado. Los títulos usan letra serif y los textos de lectura sans. Todas las pantallas comparten un encabezado verde con el título y el botón Volver, tarjetas redondeadas y botones a lo ancho. La bienvenida muestra la imagen recortada sin deformarla y con el nombre Our Sour siempre visible; en tablet horizontal la imagen y el acceso se ubican lado a lado. El contenido se limita a un ancho legible en tablet. La imagen de bienvenida fue generada para este proyecto.
+
 ### Funcionalidades
 
 - **Acceso de demostración**: entrar como cliente o administrador ficticios, o crear un perfil temporal de cliente con nombre y correo. No se guardan contraseñas ni se autentican cuentas reales. Cerrar sesión vuelve al acceso y borra el historial de navegación.
-- **Ingredientes**: selección agrupada por categoría (productos Our Sour, destilados y licores, frutas y hierbas, jugos y mixers, otros).
+- **Ingredientes**: selección agrupada por categoría (productos Our Sour, destilados y licores, frutas y hierbas, jugos y mixers, otros); se marca tocando cualquier parte de la fila.
 - **Ingredientes frecuentes (Room)**: guardar y quitar ingredientes frecuentes, sin duplicados. La lista se conserva al cerrar la app y se comparte entre perfiles demo del dispositivo.
 - **Recetas recomendadas**: ordenadas por proporción de ingredientes disponibles, de mayor a menor; los empates se resuelven por identificador de receta. No se usa aprendizaje automático. Sin selección, la app pide elegir ingredientes.
 - **Detalle de receta**: cantidades para una porción, preparación, ingredientes disponibles y faltantes, botones para agregar al carro los productos que cubren lo que falta y el producto Our Sour sugerido para la receta. Si un producto no tiene stock o fue eliminado, se indica.
@@ -59,7 +63,7 @@ Dependencias principales: Navigation Compose 2.9.5 (navegación entre pantallas)
 
 ### Pruebas
 
-15 pruebas unitarias, 6 pruebas instrumentadas en Samsung Galaxy Tab S8 y Android Lint sin errores. El detalle está en `docs/pruebas.md`.
+15 pruebas unitarias, 6 pruebas instrumentadas en Samsung Galaxy Tab S8 y Android Lint sin errores. El diseño se revisó con capturas en la tablet en vertical y horizontal. El detalle está en `docs/pruebas.md`.
 
 ## Backend
 

@@ -7,7 +7,10 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
@@ -55,17 +58,17 @@ fun QrScreen(products: List<Product>, onProduct: (Int) -> Unit, onBack: () -> Un
         else message = "Permiso de cámara rechazado. Puedes habilitarlo en los ajustes de la aplicación."
     }
     Page("Leer código QR", onBack) {
-        Text("Escanea un QR Our Sour para abrir un producto del catálogo local. No necesita Internet.")
-        Text("La cámara se usa solo durante la lectura. No se guardan fotos.")
-        message?.let { Text(it) }
+        Text("Escanea un QR Our Sour para abrir un producto del catálogo local. No necesita Internet.", style = MaterialTheme.typography.bodyLarge)
+        NoticeCard("La cámara se usa solo durante la lectura. No se guardan fotos.")
+        message?.let { Text(it, color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.labelLarge) }
         Button(onClick = {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 denied = false
                 openScanner()
             } else permission.launch(Manifest.permission.CAMERA)
-        }, enabled = !scanning) { Text("Abrir cámara") }
+        }, enabled = !scanning, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Abrir cámara") }
         if (denied) OutlinedButton(onClick = {
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}")))
-        }) { Text("Abrir ajustes de permisos") }
+        }, modifier = Modifier.fillMaxWidth()) { Text("Abrir ajustes de permisos") }
     }
 }

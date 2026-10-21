@@ -1,11 +1,7 @@
 <resources>
     <string name="app_name">Our Sour</string>
-    <string name="welcome_title">El sabor empieza con tus ingredientes</string>
-    <string name="welcome_description">Recetas y productos para preparar tu próximo sour.</string>
-    <string name="demo_notice">Demostración académica · Datos ficticios</string>
-    <string name="initial_notice">Pantalla inicial. Las funciones se incorporarán en las próximas versiones.</string>
     <style name="Theme.OurSour" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#FBF6E9</item>
     </style>
 </resources>

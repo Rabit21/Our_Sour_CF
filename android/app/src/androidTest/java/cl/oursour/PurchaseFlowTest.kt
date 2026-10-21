@@ -8,8 +8,8 @@ import org.junit.Test
 class PurchaseFlowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun buyWithRejectionThenApprovalAndFindOrder() {
-        compose.onNodeWithText("Entrar como cliente demo").performClick()
-        compose.onNodeWithText("Explorar catálogo").performClick()
+        compose.onNodeWithText("Entrar como cliente demo").performScrollTo().performClick()
+        compose.onNodeWithText("Explorar catálogo").performScrollTo().performClick()
         compose.onNodeWithText("Ver Limón fresco").performClick()
         compose.onNodeWithText("Añadir al carro").performClick()
         compose.onNodeWithText("Ver carro").performClick()
@@ -24,7 +24,7 @@ class PurchaseFlowTest {
         compose.onNodeWithText("Simular pago aprobado").performScrollTo().performClick()
         compose.onNodeWithText("Pedido confirmado").assertIsDisplayed()
         compose.onNodeWithText("Volver").performClick()
-        compose.onNodeWithText("Mis pedidos").performClick()
+        compose.onNodeWithText("Mis pedidos").performScrollTo().performClick()
         compose.onNodeWithText("Ver pedido #1").performClick()
         compose.onNodeWithText("Detalle del pedido").assertIsDisplayed()
     }

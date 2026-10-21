@@ -8,11 +8,11 @@ import org.junit.Test
 class AdminFlowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun clientCannotSeeAdminAndAdminCanCreateEditDelete() {
-        compose.onNodeWithText("Entrar como cliente demo").performClick()
+        compose.onNodeWithText("Entrar como cliente demo").performScrollTo().performClick()
         compose.onNodeWithText("Administrar productos").assertDoesNotExist()
-        compose.onNodeWithText("Cerrar sesión").performClick()
-        compose.onNodeWithText("Entrar como administrador demo").performClick()
-        compose.onNodeWithText("Administrar productos").performClick()
+        compose.onNodeWithText("Cerrar sesión").performScrollTo().performClick()
+        compose.onNodeWithText("Entrar como administrador demo").performScrollTo().performClick()
+        compose.onNodeWithText("Administrar productos").performScrollTo().performClick()
         compose.onNodeWithText("Crear producto").performClick()
         compose.onNodeWithText("Nombre del producto").performTextInput("Producto prueba")
         compose.onNodeWithText("Descripción").performTextInput("Descripción de prueba")
@@ -28,7 +28,7 @@ class AdminFlowTest {
         compose.onNodeWithText("Ver métricas demo").performScrollTo().performClick()
         compose.onNodeWithText("Métricas de demostración").assertIsDisplayed()
         compose.onNodeWithText("Volver").performClick()
-        compose.onNodeWithText("Volver").performScrollTo().performClick()
+        compose.onNodeWithText("Volver").performClick()
         compose.onNodeWithText("Hola, Admin demo").assertIsDisplayed()
     }
 }

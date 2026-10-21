@@ -15,17 +15,21 @@ fun AdminScreen(products: List<Product>, onEdit: (Int) -> Unit, onDelete: (Int) 
     var deleting by remember { mutableStateOf<Product?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     Page("Administración demo", onBack) {
-        Text("Los cambios solo afectan al catálogo local de esta ejecución.")
-        Button(onClick = { onEdit(0) }) { Text("Crear producto") }
-        OutlinedButton(onClick = onMetrics) { Text("Ver métricas demo") }
+        NoticeCard("Los cambios solo afectan al catálogo local de esta ejecución.")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = { onEdit(0) }, modifier = Modifier.weight(1f)) { Text("Crear producto") }
+            OutlinedButton(onClick = onMetrics, modifier = Modifier.weight(1f)) { Text("Ver métricas demo") }
+        }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         products.forEach { product ->
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(product.name, style = MaterialTheme.typography.titleLarge)
                     Text("${pesos(product.price)} · Stock ${product.stock}")
-                    TextButton(onClick = { onEdit(product.id) }) { Text("Editar ${product.name}") }
-                    TextButton(onClick = { deleting = product }) { Text("Eliminar ${product.name}") }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilledTonalButton(onClick = { onEdit(product.id) }) { Text("Editar ${product.name}") }
+                        TextButton(onClick = { deleting = product }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("Eliminar ${product.name}") }
+                    }
                 }
             }
         }
@@ -53,7 +57,8 @@ fun ProductFormScreen(product: Product?, isNew: Boolean, onSave: (String, String
             OutlinedTextField(price, { price = it }, label = { Text("Precio en pesos") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
             OutlinedTextField(stock, { stock = it }, label = { Text("Unidades disponibles") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(onClick = { error = onSave(name, description, price.toLongOrNull() ?: -1, stock.toIntOrNull() ?: -1) }) { Text("Guardar producto") }
+            Button(onClick = { error = onSave(name, description, price.toLongOrNull() ?: -1, stock.toIntOrNull() ?: -1) },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Guardar producto") }
         }
     }
 }
@@ -61,12 +66,26 @@ fun ProductFormScreen(product: Product?, isNew: Boolean, onSave: (String, String
 @Composable
 fun MetricsScreen(products: List<Product>, onBack: () -> Unit) {
     Page("Métricas de demostración", onBack) {
-        Text("Catálogo local actual", style = MaterialTheme.typography.titleMedium)
-        Text("Productos: ${products.size}")
-        Text("Sin stock: ${products.count { it.stock == 0 }}")
-        Text("Ejemplos ficticios, no mediciones reales", style = MaterialTheme.typography.titleMedium)
-        Text("Búsquedas de ejemplo: 128")
-        Text("Receta destacada de ejemplo: Sour clásico")
-        Text("Las búsquedas reales todavía no se registran ni se envían a un servidor.")
+        SectionTitle("Catálogo local actual")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            MetricCard("Productos", "${products.size}", Modifier.weight(1f))
+            MetricCard("Sin stock", "${products.count { it.stock == 0 }}", Modifier.weight(1f))
+        }
+        SectionTitle("Ejemplos ficticios, no mediciones reales")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            MetricCard("Búsquedas de ejemplo", "128", Modifier.weight(1f))
+            MetricCard("Receta destacada de ejemplo", "Sour clásico", Modifier.weight(1f))
+        }
+        NoticeCard("Las búsquedas reales todavía no se registran ni se envían a un servidor.")
+    }
+}
+
+@Composable
+private fun MetricCard(label: String, value: String, modifier: Modifier) {
+    Card(modifier) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(value, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+            Text(label, style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }
