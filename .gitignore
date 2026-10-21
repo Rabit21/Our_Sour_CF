@@ -1,0 +1,16 @@
+[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]
+[Tt][Aa][Ss][Kk].[Mm][Dd]
+.local/
+info_tecnica_para_enzo.txt
+.env
+.env.*
+!.env.example
+**/local.properties
+**/.gradle/
+**/build/
+**/target/
+**/.idea/
+*.iml
+*.jks
+*.keystore
+*.zip
