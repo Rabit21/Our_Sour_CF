@@ -4,16 +4,25 @@ Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y si
 
 ## Estado actual
 
-El repositorio contiene la estructura inicial. Todavía no hay una aplicación ejecutable ni servicios backend implementados.
+Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión todavía no incluye acceso, recetas, persistencia, compras ni lector QR. El backend aún no está implementado.
 
-- `android/`: carpeta destinada al proyecto Android.
+- `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
 - `docs/`: carpeta destinada a documentación de ejecución, datos y pruebas.
 
-## Ejecución
+## Ejecutar Android
 
-No hay comandos de ejecución disponibles en esta versión inicial. Las instrucciones se incorporarán junto con cada componente comprobado.
+Abrir `android/` en Android Studio. Usar JDK 21 y disponer de Android SDK 36; la aplicación admite Android 8.0 (API 26) o posterior. Android Studio configura la ubicación local del SDK. Desde la carpeta `android/`, en Windows:
+
+```powershell
+.\gradlew.bat assembleDebug testDebugUnitTest
+.\gradlew.bat installDebug
+```
+
+Para instalar se necesita un dispositivo conectado con depuración USB y autorización del equipo. El APK de depuración se genera en `app/build/outputs/apk/debug/app-debug.apk`.
+
+La configuración utiliza Gradle 8.13, Android Gradle Plugin 8.13.2, Kotlin 2.0.21 y Compose BOM 2024.09.00. Compilación assembleDebug completada correctamente el 21/10/2026; instalación y apertura verificadas en Samsung Galaxy Tab S8 (SM-X700). La pantalla inicial se revisó mediante captura del dispositivo. Todavía no hay pruebas unitarias de lógica porque esta versión solo contiene la pantalla inicial.
 
 ## Alcance académico
 
-La entrega móvil de esta evaluación funcionará sin conexión al backend, con datos ficticios y compras simuladas. Los servicios backend se entregarán por separado. No se procesarán pagos reales.
+La aplicación móvil de esta evaluación funciona sin conexión al backend. Las funciones posteriores utilizarán datos ficticios y compras simuladas; no se procesarán pagos reales. Los servicios backend se entregarán por separado.
