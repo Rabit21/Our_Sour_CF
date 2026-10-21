@@ -4,7 +4,7 @@ Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y si
 
 ## Estado actual
 
-Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; incluye compra y pedidos simulados; todavía no incluye lector QR. El backend aún no está implementado.
+Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; incluye compra y pedidos simulados; incluye lector QR por cámara. El backend aún no está implementado.
 
 - `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
@@ -62,3 +62,9 @@ Ocho pruebas unitarias y cuatro instrumentadas aprobadas en Galaxy Tab S8, inclu
 El perfil administrador demo permite crear, editar y eliminar productos con validación de nombre, descripción, precio y stock. El cliente no ve estas opciones. El borrado pide confirmación y quita el producto del carro, manteniendo intactos los pedidos anteriores. Los cambios de catálogo duran durante la ejecución de la app.
 
 Métricas de demostración distingue el conteo del catálogo local de las búsquedas y receta destacada ficticias. No se registran búsquedas reales todavía. Diez pruebas unitarias y cinco instrumentadas aprobadas, incluyendo CRUD de administración y navegación por rol.
+
+## Lector QR por cámara
+
+Inicio → Leer QR abre la cámara y resuelve códigos con formato `OURSOUR:PRODUCTO:1` contra el catálogo local. La app informa formato inválido, producto inexistente y permiso rechazado, con acceso a ajustes para recuperarlo. Una captura devuelve un solo resultado; se puede iniciar otra lectura al volver. No se guardan fotos.
+
+Se utiliza ZXing Android Embedded 4.3.0: https://github.com/journeyapps/zxing-android-embedded. Los códigos de `docs/qr/` permiten probar producto 1, formato inválido y producto inexistente. La lectura válida se comprobó en Galaxy Tab S8; el usuario confirmó los casos inválido e inexistente. El permiso rechazado se verificó directamente en la tablet. Compilación, once pruebas unitarias y Lint correctos.

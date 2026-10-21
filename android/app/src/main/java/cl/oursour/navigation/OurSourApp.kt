@@ -77,9 +77,10 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
             if (user?.role == Role.ADMIN) MetricsScreen(products, { nav.popBackStack() })
             else Page("Acceso no disponible", { nav.popBackStack() }) { androidx.compose.material3.Text("Esta pantalla requiere el perfil administrador demo.") }
         }
+        composable("qr") { QrScreen(products, { nav.navigate("product/$it") { launchSingleTop = true } }, { nav.popBackStack() }) }
         composable("home") {
             val current = user
-            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onOrders = { nav.navigate("orders") }, onAdmin = { nav.navigate("admin") }, onLogout = {
+            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onOrders = { nav.navigate("orders") }, onAdmin = { nav.navigate("admin") }, onQr = { nav.navigate("qr") }, onLogout = {
                 session.logout()
                 recipes.clear()
                 shop.clearSession()

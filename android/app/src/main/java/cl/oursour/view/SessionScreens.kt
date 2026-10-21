@@ -53,13 +53,14 @@ fun RegisterScreen(onBack: () -> Unit, onRegister: (String, String) -> String?) 
 }
 
 @Composable
-fun HomeScreen(user: DemoUser, onRecipes: () -> Unit, onCatalog: () -> Unit, onOrders: () -> Unit, onAdmin: () -> Unit, onLogout: () -> Unit) {
+fun HomeScreen(user: DemoUser, onRecipes: () -> Unit, onCatalog: () -> Unit, onOrders: () -> Unit, onAdmin: () -> Unit, onQr: () -> Unit, onLogout: () -> Unit) {
     Page("Hola, ${user.name}") {
         Text("Rol: ${user.role.name} · Sesión de demostración")
         Text("Tu espacio para descubrir recetas y preparar tu próximo sour.")
         Button(onClick = onRecipes) { Text("Buscar recetas") }
         Button(onClick = onCatalog) { Text("Explorar catálogo") }
         OutlinedButton(onClick = onOrders) { Text("Mis pedidos") }
+        OutlinedButton(onClick = onQr) { Text("Leer QR") }
         if (user.role == Role.ADMIN) OutlinedButton(onClick = onAdmin) { Text("Administrar productos") }
         OutlinedButton(onClick = onLogout) { Text("Cerrar sesión") }
     }
