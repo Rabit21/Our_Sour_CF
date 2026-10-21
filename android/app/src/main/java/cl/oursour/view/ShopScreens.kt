@@ -10,7 +10,7 @@ import cl.oursour.model.*
 import java.text.NumberFormat
 import java.util.Locale
 
-fun pesos(amount: Long): String = NumberFormat.getCurrencyInstance(Locale("es", "CL")).format(amount)
+fun pesos(amount: Long): String = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CL")).format(amount)
 
 @Composable
 fun CatalogScreen(products: List<Product>, onDetail: (Int) -> Unit, onCart: () -> Unit, onBack: () -> Unit) {
@@ -46,7 +46,7 @@ fun ProductDetailScreen(product: Product?, onAdd: (Int) -> String?, onCart: () -
 }
 
 @Composable
-fun CartScreen(lines: List<CartLine>, onQuantity: (Int, Int) -> String?, onRemove: (Int) -> Unit, onBack: () -> Unit) {
+fun CartScreen(lines: List<CartLine>, onQuantity: (Int, Int) -> String?, onRemove: (Int) -> Unit, onBack: () -> Unit, onCheckout: () -> Unit) {
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     Page("Tu carro", onBack) {
         if (lines.isEmpty()) Text("Tu carro está vacío. Explora el catálogo para agregar productos.")
@@ -65,5 +65,6 @@ fun CartScreen(lines: List<CartLine>, onQuantity: (Int, Int) -> String?, onRemov
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Text("Subtotal: ${pesos(lines.sumOf { it.subtotal })}", style = MaterialTheme.typography.titleLarge)
+        Button(onClick = onCheckout, enabled = lines.isNotEmpty()) { Text("Continuar compra") }
     }
 }

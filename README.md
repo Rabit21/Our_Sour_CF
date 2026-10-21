@@ -4,7 +4,7 @@ Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y si
 
 ## Estado actual
 
-Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; todavía no incluye compras ni lector QR. El backend aún no está implementado.
+Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; incluye compra y pedidos simulados; todavía no incluye lector QR. El backend aún no está implementado.
 
 - `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
@@ -48,3 +48,11 @@ En Tus ingredientes, Guardar agrega un ingrediente a frecuentes y Quitar lo elim
 Inicio → Explorar catálogo muestra productos ficticios con precio en CLP y stock. Desde el detalle se agregan al carro; allí se aumentan/reducen cantidades y se eliminan líneas. El subtotal se calcula con pesos enteros. Se rechazan cantidades fuera de 1 a 99 o superiores al stock. El carro es temporal y se limpia al cerrar sesión.
 
 Compilación y seis pruebas unitarias aprobadas, incluidas operaciones del carro, subtotal, cantidades inválidas y productos sin stock.
+
+## Compra y pedidos de demostración
+
+Desde el carro, Continuar compra permite ingresar destinatario, calle y comuna ficticios. El despacho demo cuesta $3.500 y es gratis desde $30.000 en productos. El resumen permite simular pago rechazado (conserva el carro) o aprobado (genera pedido y descuenta stock local). No se solicitan datos de tarjeta ni se hacen cobros o envíos reales.
+
+Mis pedidos muestra los pedidos de la sesión con sus cantidades, precios históricos y dirección. Al cerrar sesión se eliminan estos pedidos, la dirección y el carro; Room conserva únicamente los ingredientes frecuentes.
+
+Ocho pruebas unitarias y cuatro instrumentadas aprobadas en Galaxy Tab S8, incluido el recorrido de compra con rechazo y aprobación. Compilación y Lint correctos.

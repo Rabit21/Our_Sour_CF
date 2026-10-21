@@ -16,6 +16,8 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
     val shop: ShopViewModel = viewModel()
     val products by shop.products.collectAsState()
     val cart by shop.cart.collectAsState()
+    val address by shop.address.collectAsState()
+    val orders by shop.orders.collectAsState()
     val recipes: RecipeViewModel = viewModel()
     val selected by recipes.selected.collectAsState()
     val frequent: FrequentIngredientViewModel = viewModel()
@@ -41,13 +43,28 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
             val id = entry.arguments?.getString("id")?.toIntOrNull()
             ProductDetailScreen(products.firstOrNull { it.id == id }, shop::add, { nav.navigate("cart") }, { nav.popBackStack() })
         }
-        composable("cart") { CartScreen(cart, shop::setQuantity, shop::remove, { nav.popBackStack() }) }
+        composable("cart") { CartScreen(cart, shop::setQuantity, shop::remove, { nav.popBackStack() }, { nav.navigate("address") }) }
+        composable("address") { AddressScreen(address, { value ->
+            val error = shop.saveAddress(value)
+            if (error == null) nav.navigate("summary")
+            error
+        }, { nav.popBackStack() }) }
+        composable("summary") { SummaryScreen(cart, address, { approved ->
+            val error = shop.checkout(approved)
+            if (error == null) nav.navigate("confirmation/${shop.orders.value.last().id}") { popUpTo("home") }
+            error
+        }, { nav.popBackStack() }) }
+        composable("confirmation/{id}") { entry ->
+            OrderDetailScreen(orders.firstOrNull { it.id == entry.arguments?.getString("id")?.toIntOrNull() }, { nav.popBackStack("home", false) }, true)
+        }
+        composable("orders") { OrdersScreen(orders, { nav.navigate("order/$it") }, { nav.popBackStack() }) }
+        composable("order/{id}") { entry -> OrderDetailScreen(orders.firstOrNull { it.id == entry.arguments?.getString("id")?.toIntOrNull() }, { nav.popBackStack() }) }
         composable("home") {
             val current = user
-            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onLogout = {
+            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onOrders = { nav.navigate("orders") }, onLogout = {
                 session.logout()
                 recipes.clear()
-                shop.clearCart()
+                shop.clearSession()
                 nav.navigate("login") { popUpTo("home") { inclusive = true }; launchSingleTop = true }
             }) else LaunchedEffect(Unit) { nav.navigate("login") { popUpTo("home") { inclusive = true } } }
         }
