@@ -12,7 +12,7 @@ Los tres servicios usan una base exclusiva MariaDB llamada our_sour. Cada servic
 
 ## Diseño lógico
 
-Este es el diseño de las entidades de negocio; la versión inicial de infraestructura aún no crea sus tablas. Se actualizará el documento al implementar y verificar cada conjunto.
+Este es el diseño de las entidades de negocio. Por ahora existen las tablas `catalogo_productos` y `catalogo_ingredientes`, creadas por JPA en our_sour; el resto se agregará al implementar y verificar cada conjunto.
 
 ```mermaid
 erDiagram

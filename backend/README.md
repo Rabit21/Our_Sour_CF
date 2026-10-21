@@ -24,4 +24,24 @@ Iniciar Eureka primero y luego los otros procesos en terminales separadas. El Ga
 
 ## Estado comprobado
 
-Los cinco módulos compilaron y generaron sus JAR. Esta versión de infraestructura todavía no tiene pruebas unitarias de negocio, entidades de negocio ni autenticación implementada. El arranque, registro en Eureka y las tres rutas de estado se verificaron con MariaDB 10.4.32 en el puerto 3308. Los tres servicios utilizan la base exclusiva our_sour, con tablas separadas por prefijos de servicio. No se presenta la compilación como prueba de funcionamiento de la base de datos.
+Los cinco módulos compilaron y generaron sus JAR. La infraestructura inicial no incluía entidades de negocio; el catálogo se describe en la sección siguiente. La autenticación todavía no está implementada. El arranque, registro en Eureka y las tres rutas de estado se verificaron con MariaDB 10.4.32 en el puerto 3308. Los tres servicios utilizan la base exclusiva our_sour, con tablas separadas por prefijos de servicio. No se presenta la compilación como prueba de funcionamiento de la base de datos.
+
+## Catálogo persistente
+
+`ms-catalogo` almacena productos e ingredientes en `our_sour.catalogo_productos` y `our_sour.catalogo_ingredientes`. Al arrancar con tablas vacías incorpora datos sintéticos. El servidor no reemplaza registros existentes al reiniciar.
+
+Rutas a través de `http://127.0.0.1:8080`:
+
+| Método | Ruta | Resultado |
+|---|---|---|
+| GET | /api/catalogo/productos | Lista ordenada por ID |
+| GET | /api/catalogo/productos/{id} | Detalle o 404 |
+| POST | /api/catalogo/productos | Alta 201 y cabecera Location |
+| PUT | /api/catalogo/productos/{id} | Actualización o 404 |
+| DELETE | /api/catalogo/productos/{id} | Eliminación 204 o 404 |
+
+Las mismas operaciones existen para `/api/catalogo/ingredientes`. Producto recibe `nombre`, `descripcion`, `precio` y `stock`; ingrediente recibe `nombre`. Los precios son pesos enteros de 1 a 10.000.000, stock de 0 a 9999 y nombres de 2 a 80 caracteres. Datos inválidos devuelven 400 y nombres duplicados 409. El ID se asigna en la base; no se toma del cuerpo de entrada.
+
+Pruebas: `mvnw.cmd -pl ms-catalogo -am test` ejecuta seis pruebas unitarias de `ProductoService` e `IngredienteService` con Mockito, sin base de datos. El recorrido REST completo (alta, duplicado, validación, 404, actualización, reinicio y eliminación) se comprobó contra MariaDB 10.4.32 a través del Gateway.
+
+Estas rutas todavía no tienen autenticación y solo escuchan en loopback. La seguridad se incorporará antes de la entrega completa.

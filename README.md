@@ -4,7 +4,7 @@ Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y si
 
 ## Estado actual
 
-Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; incluye compra y pedidos simulados; incluye lector QR por cámara. El backend aún no está implementado.
+Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; incluye recomendaciones y detalles de recetas; incluye persistencia de frecuentes con Room; incluye compra y pedidos simulados; incluye lector QR por cámara. El backend se describe en la sección Infraestructura backend.
 
 - `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
@@ -71,4 +71,8 @@ Se utiliza ZXing Android Embedded 4.3.0: https://github.com/journeyapps/zxing-an
 
 ## Infraestructura backend
 
-Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Esta versión incluye infraestructura y endpoints de estado; las funciones de negocio backend todavía no están implementadas.
+Los módulos Eureka, Gateway, autenticación, catálogo y pedidos compilan con Maven Wrapper. Usan una base exclusiva MariaDB llamada our_sour en el entorno local. Consulta backend/README.md para configurar las variables y ejecutar cada servicio. Además de la infraestructura y los endpoints de estado, ya está implementado el catálogo de productos e ingredientes; recetas, autenticación y pedidos backend siguen pendientes.
+
+## Catálogo backend
+
+Productos e ingredientes tienen CRUD persistente en our_sour, validación de campos, rechazo de duplicados y respuestas para recursos inexistentes. Las rutas están documentadas en backend/README.md. Seis pruebas unitarias cubren alta, duplicados, actualización e inexistentes en los servicios de catálogo; el CRUD se comprobó contra MariaDB a través del Gateway, incluida la persistencia tras reiniciar el servicio. La autenticación backend todavía está pendiente.
