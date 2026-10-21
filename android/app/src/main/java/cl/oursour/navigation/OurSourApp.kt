@@ -6,12 +6,16 @@ import androidx.navigation.compose.*
 import cl.oursour.view.*
 import cl.oursour.viewmodel.SessionViewModel
 import cl.oursour.viewmodel.RecipeViewModel
+import cl.oursour.viewmodel.ShopViewModel
 import cl.oursour.viewmodel.FrequentIngredientViewModel
 
 @Composable
 fun OurSourApp(session: SessionViewModel = viewModel()) {
     val nav = rememberNavController()
     val user by session.user.collectAsState()
+    val shop: ShopViewModel = viewModel()
+    val products by shop.products.collectAsState()
+    val cart by shop.cart.collectAsState()
     val recipes: RecipeViewModel = viewModel()
     val selected by recipes.selected.collectAsState()
     val frequent: FrequentIngredientViewModel = viewModel()
@@ -32,11 +36,18 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
         composable("ingredients") { IngredientsScreen(selected, recipes::toggle, { nav.navigate("recommendations") }, { nav.popBackStack() }, saved.map { it.ingredientId }.toSet(), frequent::save, frequent::remove, frequentError) }
         composable("recommendations") { RecommendationsScreen(selected, { nav.navigate("recipe/$it") }, { nav.popBackStack() }) }
         composable("recipe/{id}") { entry -> RecipeDetailScreen(entry.arguments?.getString("id")?.toIntOrNull() ?: -1, selected, { nav.popBackStack() }) }
+        composable("catalog") { CatalogScreen(products, { nav.navigate("product/$it") }, { nav.navigate("cart") }, { nav.popBackStack() }) }
+        composable("product/{id}") { entry ->
+            val id = entry.arguments?.getString("id")?.toIntOrNull()
+            ProductDetailScreen(products.firstOrNull { it.id == id }, shop::add, { nav.navigate("cart") }, { nav.popBackStack() })
+        }
+        composable("cart") { CartScreen(cart, shop::setQuantity, shop::remove, { nav.popBackStack() }) }
         composable("home") {
             val current = user
-            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onLogout = {
+            if (current != null) HomeScreen(current, onRecipes = { nav.navigate("ingredients") }, onCatalog = { nav.navigate("catalog") }, onLogout = {
                 session.logout()
                 recipes.clear()
+                shop.clearCart()
                 nav.navigate("login") { popUpTo("home") { inclusive = true }; launchSingleTop = true }
             }) else LaunchedEffect(Unit) { nav.navigate("login") { popUpTo("home") { inclusive = true } } }
         }
