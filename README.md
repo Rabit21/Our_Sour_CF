@@ -4,7 +4,7 @@ Proyecto académico DSY1105 para consultar recetas a partir de ingredientes y si
 
 ## Estado actual
 
-Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión todavía no incluye acceso, recetas, persistencia, compras ni lector QR. El backend aún no está implementado.
+Android contiene una pantalla inicial con Material 3, colores crema, verde oscuro y cítrico, texto adaptable y desplazamiento para pantallas pequeñas. Esta versión incluye acceso demo y navegación; todavía no incluye recetas, persistencia, compras ni lector QR. El backend aún no está implementado.
 
 - `android/`: proyecto Android con Gradle Wrapper.
 - `backend/`: carpeta destinada a los servicios de negocio, Eureka y Gateway.
@@ -26,3 +26,9 @@ La configuración utiliza Gradle 8.13, Android Gradle Plugin 8.13.2, Kotlin 2.0.
 ## Alcance académico
 
 La aplicación móvil de esta evaluación funciona sin conexión al backend. Las funciones posteriores utilizarán datos ficticios y compras simuladas; no se procesarán pagos reales. Los servicios backend se entregarán por separado.
+
+## Acceso de demostración
+
+La pantalla de entrada permite elegir cliente o administrador ficticios y crear un perfil temporal de cliente con nombre y correo de ejemplo. No se guardan contraseñas ni se autentican cuentas reales. Cerrar sesión devuelve al acceso y elimina el destino anterior de la navegación.
+
+Para comprobarlo, entra con cada rol y cierra sesión; prueba crear un perfil vacío y luego uno con nombre y correo válido. Las dos pruebas instrumentadas de acceso y navegación pasaron en Galaxy Tab S8 con `gradlew.bat connectedDebugAndroidTest`.
