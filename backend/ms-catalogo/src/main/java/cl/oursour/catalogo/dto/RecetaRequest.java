@@ -13,6 +13,9 @@ public class RecetaRequest {
     @Size(min = 10, max = 2000)
     private String preparacion;
 
+    @NotNull
+    private Long productoId;
+
     @NotEmpty
     @Size(max = 20)
     private List<@Valid @NotNull DosisRequest> ingredientes;
@@ -21,6 +24,8 @@ public class RecetaRequest {
     public void setNombre(String value) { nombre = value == null ? null : value.trim(); }
     public String getPreparacion() { return preparacion; }
     public void setPreparacion(String value) { preparacion = value == null ? null : value.trim(); }
+    public Long getProductoId() { return productoId; }
+    public void setProductoId(Long value) { productoId = value; }
     public List<DosisRequest> getIngredientes() { return ingredientes; }
     public void setIngredientes(List<DosisRequest> value) { ingredientes = value; }
 }

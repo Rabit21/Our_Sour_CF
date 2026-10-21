@@ -17,6 +17,11 @@ public class Receta {
     @Column(nullable = false, length = 2000)
     private String preparacion;
 
+    /** Producto Our Sour asociado (misma base del servicio de catálogo). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "producto_id")
+    private Producto producto;
+
     /** Dosificación: cada línea une la receta con un ingrediente y su cantidad. */
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id")
@@ -28,6 +33,8 @@ public class Receta {
     public void setNombre(String value) { nombre = value; }
     public String getPreparacion() { return preparacion; }
     public void setPreparacion(String value) { preparacion = value; }
+    public Producto getProducto() { return producto; }
+    public void setProducto(Producto value) { producto = value; }
     public List<RecetaIngrediente> getIngredientes() { return ingredientes; }
 
     public void agregarIngrediente(RecetaIngrediente linea) {

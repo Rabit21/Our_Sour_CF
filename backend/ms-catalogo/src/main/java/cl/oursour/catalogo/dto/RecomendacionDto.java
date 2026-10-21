@@ -10,14 +10,16 @@ public class RecomendacionDto {
     private final int total;
     private final double proporcion;
     private final List<DosisDto> faltantes;
+    private final Long productoId;
 
-    public RecomendacionDto(Long recetaId, String nombre, int disponibles, int total, List<DosisDto> faltantes) {
+    public RecomendacionDto(Long recetaId, String nombre, int disponibles, int total, List<DosisDto> faltantes, Long productoId) {
         this.recetaId = recetaId;
         this.nombre = nombre;
         this.disponibles = disponibles;
         this.total = total;
         this.proporcion = (double) disponibles / total;
         this.faltantes = faltantes;
+        this.productoId = productoId;
     }
 
     public Long getRecetaId() { return recetaId; }
@@ -26,4 +28,5 @@ public class RecomendacionDto {
     public int getTotal() { return total; }
     public double getProporcion() { return proporcion; }
     public List<DosisDto> getFaltantes() { return faltantes; }
+    public Long getProductoId() { return productoId; }
 }

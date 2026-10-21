@@ -38,7 +38,7 @@ fun OurSourApp(session: SessionViewModel = viewModel()) {
         }
         composable("ingredients") { IngredientsScreen(selected, recipes::toggle, { nav.navigate("recommendations") }, { nav.popBackStack() }, saved.map { it.ingredientId }.toSet(), frequent::save, frequent::remove, frequentError) }
         composable("recommendations") { RecommendationsScreen(selected, { nav.navigate("recipe/$it") }, { nav.popBackStack() }) }
-        composable("recipe/{id}") { entry -> RecipeDetailScreen(entry.arguments?.getString("id")?.toIntOrNull() ?: -1, selected, { nav.popBackStack() }) }
+        composable("recipe/{id}") { entry -> RecipeDetailScreen(entry.arguments?.getString("id")?.toIntOrNull() ?: -1, selected, products, shop::add, { nav.navigate("product/$it") }, { nav.navigate("cart") }, { nav.popBackStack() }) }
         composable("catalog") { CatalogScreen(products, { nav.navigate("product/$it") }, { nav.navigate("cart") }, { nav.popBackStack() }) }
         composable("product/{id}") { entry ->
             val id = entry.arguments?.getString("id")?.toIntOrNull()

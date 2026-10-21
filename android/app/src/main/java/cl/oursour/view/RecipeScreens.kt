@@ -2,9 +2,11 @@ package cl.oursour.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cl.oursour.model.Product
 import cl.oursour.repository.RecipeRepository
 
 @Composable
@@ -21,11 +23,14 @@ fun IngredientsScreen(selected: Set<Int>, onToggle: (Int) -> Unit, onSearch: () 
             }
         }
         Text("Todos los ingredientes", style = MaterialTheme.typography.titleMedium)
-        RecipeRepository.ingredients.forEach { ingredient ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(ingredient.name, Modifier.weight(1f).padding(top = 12.dp))
-                Checkbox(checked = ingredient.id in selected, onCheckedChange = { onToggle(ingredient.id) })
-                TextButton(onClick = { onSave(ingredient.id) }, enabled = ingredient.id !in frequentIds) { Text(if (ingredient.id in frequentIds) "Guardado" else "Guardar ${ingredient.name}") }
+        RecipeRepository.byCategory().forEach { (category, items) ->
+            Text(category.label, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            items.forEach { ingredient ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(ingredient.name, Modifier.weight(1f).padding(top = 12.dp))
+                    Checkbox(checked = ingredient.id in selected, onCheckedChange = { onToggle(ingredient.id) })
+                    TextButton(onClick = { onSave(ingredient.id) }, enabled = ingredient.id !in frequentIds) { Text(if (ingredient.id in frequentIds) "Guardado" else "Guardar ${ingredient.name}") }
+                }
             }
         }
         Text("${selected.size} ingredientes seleccionados")
@@ -53,8 +58,9 @@ fun RecommendationsScreen(selected: Set<Int>, onDetail: (Int) -> Unit, onBack: (
 }
 
 @Composable
-fun RecipeDetailScreen(id: Int, selected: Set<Int>, onBack: () -> Unit) {
+fun RecipeDetailScreen(id: Int, selected: Set<Int>, products: List<Product>, onAdd: (Int) -> String?, onProduct: (Int) -> Unit, onCart: () -> Unit, onBack: () -> Unit) {
     val recipe = RecipeRepository.recipes.firstOrNull { it.id == id }
+    var message by rememberSaveable(id) { mutableStateOf<String?>(null) }
     Page(recipe?.name ?: "Receta no encontrada", onBack) {
         if (recipe != null) {
             Text("Ingredientes para una porción", style = MaterialTheme.typography.titleMedium)
@@ -63,6 +69,31 @@ fun RecipeDetailScreen(id: Int, selected: Set<Int>, onBack: () -> Unit) {
             }
             Text("Preparación", style = MaterialTheme.typography.titleMedium)
             Text(recipe.preparation)
+            val missingProducts = RecipeRepository.productsForMissing(recipe, selected, products)
+            if (missingProducts.isNotEmpty()) {
+                Text("Completa lo que falta", style = MaterialTheme.typography.titleMedium)
+                missingProducts.forEach { product ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("${product.name} · ${pesos(product.price)}", Modifier.weight(1f).padding(top = 12.dp))
+                        TextButton(onClick = { message = onAdd(product.id) ?: "${product.name} añadido al carro." }, enabled = product.stock > 0) {
+                            Text(if (product.stock > 0) "Agregar ${product.name}" else "Sin stock")
+                        }
+                    }
+                }
+            }
+            val suggested = products.firstOrNull { it.id == recipe.productId }
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Producto Our Sour sugerido", style = MaterialTheme.typography.titleMedium)
+                    if (suggested == null) Text("El producto asociado ya no está en el catálogo.")
+                    else {
+                        Text("${suggested.name} · ${pesos(suggested.price)}")
+                        OutlinedButton(onClick = { onProduct(suggested.id) }) { Text("Ver producto sugerido") }
+                    }
+                }
+            }
+            message?.let { Text(it) }
+            OutlinedButton(onClick = onCart) { Text("Ver carro") }
         }
     }
 }

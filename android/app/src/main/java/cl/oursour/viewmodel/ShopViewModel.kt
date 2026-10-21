@@ -17,7 +17,7 @@ class ShopViewModel : ViewModel() {
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
     val orders = _orders.asStateFlow()
     private var nextOrderId = 1
-    private var nextProductId = 6
+    private var nextProductId = 7
 
     fun saveProduct(role: Role?, id: Int, name: String, description: String, price: Long, stock: Int): String? {
         if (role != Role.ADMIN) return "Solo el administrador demo puede editar productos."

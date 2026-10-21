@@ -37,6 +37,7 @@ public class IngredienteService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Nombre duplicado");
         }
         entity.setNombre(input.getNombre());
+        entity.setCategoria(input.getCategoria());
         return IngredienteDto.from(repository.saveAndFlush(entity));
     }
 

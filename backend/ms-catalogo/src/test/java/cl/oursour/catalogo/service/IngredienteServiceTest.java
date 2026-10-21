@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import cl.oursour.catalogo.dto.IngredienteDto;
+import cl.oursour.catalogo.model.CategoriaIngrediente;
 import cl.oursour.catalogo.model.Ingrediente;
 import cl.oursour.catalogo.repository.IngredienteRepository;
 
@@ -19,6 +20,7 @@ class IngredienteServiceTest {
     private IngredienteDto input(String nombre) {
         IngredienteDto dto = new IngredienteDto();
         dto.setNombre(nombre);
+        dto.setCategoria(CategoriaIngrediente.FRUTA);
         return dto;
     }
 
@@ -44,5 +46,12 @@ class IngredienteServiceTest {
 
         verify(repository).delete(existing);
         verify(repository).flush();
+    }
+
+    @Test
+    void categoryIsSavedAndReturned() {
+        when(repository.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
+        IngredienteDto result = service.save(null, input("Menta"));
+        assertEquals(CategoriaIngrediente.FRUTA, result.getCategoria());
     }
 }

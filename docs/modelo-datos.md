@@ -26,6 +26,7 @@ erDiagram
     INGREDIENTE {
         long id PK
         string nombre UK
+        string categoria
     }
     PRODUCTO {
         long id PK
@@ -38,6 +39,7 @@ erDiagram
         long id PK
         string nombre
         string preparacion
+        long producto_id FK
     }
     RECETA_INGREDIENTE {
         long id PK
@@ -77,11 +79,12 @@ erDiagram
     }
     RECETA ||--|{ RECETA_INGREDIENTE : requiere
     INGREDIENTE ||--o{ RECETA_INGREDIENTE : integra
+    PRODUCTO ||--o{ RECETA : sugerido_en
     CARRO ||--o{ LINEA_CARRO : contiene
     PEDIDO ||--|{ LINEA_PEDIDO : conserva
 ```
 
-La dosificación pertenece a la relación entre receta e ingrediente; `catalogo_receta_ingredientes` tiene claves foráneas a receta e ingrediente (ambas del mismo servicio) y una restricción única por par receta-ingrediente. El pedido conserva nombre y precio histórico; editar un producto no debe modificar una compra anterior. El servidor calcula subtotal, despacho y total. El identificador del propietario se obtiene del usuario autenticado, no de un campo confiado al cliente.
+La dosificación pertenece a la relación entre receta e ingrediente; `catalogo_receta_ingredientes` tiene claves foráneas a receta e ingrediente (ambas del mismo servicio) y una restricción única por par receta-ingrediente. Cada ingrediente tiene una categoría (OUR_SOUR, DESTILADO, FRUTA, MIXER u OTRO) y cada receta un producto Our Sour asociado (`producto_id`, clave foránea dentro del mismo servicio). El pedido conserva nombre y precio histórico; editar un producto no debe modificar una compra anterior. El servidor calcula subtotal, despacho y total. El identificador del propietario se obtiene del usuario autenticado, no de un campo confiado al cliente.
 
 ## Almacenamiento móvil de esta evaluación
 

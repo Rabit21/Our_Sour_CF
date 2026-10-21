@@ -14,13 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import cl.oursour.catalogo.dto.DosisRequest;
 import cl.oursour.catalogo.dto.RecetaRequest;
+import cl.oursour.catalogo.model.Producto;
 import cl.oursour.catalogo.repository.IngredienteRepository;
+import cl.oursour.catalogo.repository.ProductoRepository;
 import cl.oursour.catalogo.repository.RecetaRepository;
 
 class RecetaServiceTest {
     private final RecetaRepository recetas = mock(RecetaRepository.class);
     private final IngredienteRepository ingredientes = mock(IngredienteRepository.class);
-    private final RecetaService service = new RecetaService(recetas, ingredientes);
+    private final ProductoRepository productos = mock(ProductoRepository.class);
+    private final RecetaService service = new RecetaService(recetas, ingredientes, productos);
 
     private static DosisRequest dosis(long ingredienteId) {
         DosisRequest result = new DosisRequest();
@@ -34,6 +37,7 @@ class RecetaServiceTest {
         RecetaRequest result = new RecetaRequest();
         result.setNombre("Receta de prueba");
         result.setPreparacion("Mezclar y servir frío.");
+        result.setProductoId(1L);
         result.setIngredientes(new ArrayList<>(List.of(items)));
         return result;
     }
@@ -48,6 +52,7 @@ class RecetaServiceTest {
 
     @Test
     void unknownIngredientIsRejected() {
+        when(productos.findById(1L)).thenReturn(Optional.of(new Producto()));
         when(ingredientes.findById(77L)).thenReturn(Optional.empty());
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
                 () -> service.save(null, request(dosis(77))));
@@ -67,5 +72,14 @@ class RecetaServiceTest {
         when(recetas.findById(9L)).thenReturn(Optional.empty());
         assertEquals(HttpStatus.NOT_FOUND,
                 assertThrows(ResponseStatusException.class, () -> service.get(9L)).getStatusCode());
+    }
+
+    @Test
+    void unknownProductIsRejected() {
+        when(productos.findById(1L)).thenReturn(Optional.empty());
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+                () -> service.save(null, request(dosis(1))));
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatusCode());
+        verify(recetas, never()).saveAndFlush(any());
     }
 }

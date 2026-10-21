@@ -15,7 +15,9 @@ import cl.oursour.catalogo.dto.RecomendacionDto;
 import cl.oursour.catalogo.model.Ingrediente;
 import cl.oursour.catalogo.model.Receta;
 import cl.oursour.catalogo.model.RecetaIngrediente;
+import cl.oursour.catalogo.model.Producto;
 import cl.oursour.catalogo.repository.IngredienteRepository;
+import cl.oursour.catalogo.repository.ProductoRepository;
 import cl.oursour.catalogo.repository.RecetaRepository;
 
 @Service
@@ -25,10 +27,12 @@ public class RecetaService {
 
     private final RecetaRepository recetas;
     private final IngredienteRepository ingredientes;
+    private final ProductoRepository productos;
 
-    public RecetaService(RecetaRepository recetas, IngredienteRepository ingredientes) {
+    public RecetaService(RecetaRepository recetas, IngredienteRepository ingredientes, ProductoRepository productos) {
         this.recetas = recetas;
         this.ingredientes = ingredientes;
+        this.productos = productos;
     }
 
     @Transactional(readOnly = true)
@@ -63,8 +67,12 @@ public class RecetaService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingrediente repetido en la receta");
             }
         }
+        Producto producto = productos.findById(input.getProductoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Producto inexistente: " + input.getProductoId()));
         entity.setNombre(input.getNombre());
         entity.setPreparacion(input.getPreparacion());
+        entity.setProducto(producto);
         if (!entity.getIngredientes().isEmpty()) {
             // Se eliminan las líneas anteriores antes de insertar las nuevas (restricción única receta-ingrediente).
             entity.getIngredientes().clear();

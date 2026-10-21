@@ -35,7 +35,9 @@ Para comprobarlo, entra con cada rol y cierra sesión; prueba crear un perfil va
 
 ## Recetas por ingredientes
 
-Desde Inicio, pulsa Buscar recetas, selecciona ingredientes y abre las recomendaciones. Se ordenan por proporción de ingredientes disponibles; los empates se resuelven por identificador. Cada detalle muestra cantidades para una porción, preparación y faltantes. Una selección vacía solicita elegir ingredientes. Los datos son sintéticos y no se usa aprendizaje automático.
+Desde Inicio, pulsa Buscar recetas, selecciona ingredientes y abre las recomendaciones. Se ordenan por proporción de ingredientes disponibles; los empates se resuelven por identificador. Cada detalle muestra cantidades para una porción, preparación y faltantes. Una selección vacía solicita elegir ingredientes. Los ingredientes se muestran agrupados por categoría (productos Our Sour, destilados, frutas y hierbas, jugos y mixers, otros). Los datos son sintéticos y no se usa aprendizaje automático.
+
+El detalle de receta conecta con la compra: lista los productos del catálogo que cubren los ingredientes faltantes con un botón para agregarlos al carro y muestra el producto Our Sour sugerido para esa receta, con acceso a su ficha. Si el producto no tiene stock o fue eliminado por el administrador, la app lo indica. Cuatro pruebas unitarias cubren la relación entre faltantes y productos, productos eliminados y categorías; una prueba instrumentada recorre en Galaxy Tab S8 la selección de ingredientes, la receta y el agregado al carro.
 
 Cuatro pruebas unitarias verifican selección vacía, coincidencia total, coincidencias parciales con orden estable e identificadores desconocidos. Compilación y pruebas completadas correctamente.
 
@@ -81,4 +83,4 @@ Productos e ingredientes tienen CRUD persistente en our_sour, validación de cam
 
 `ms-catalogo` guarda recetas con su dosificación (cantidad y unidad por ingrediente para una porción) e incluye las tres recetas sintéticas de la app. `GET /api/catalogo/recetas/recomendaciones?ingredientes=1,2` aplica la misma regla que Android: proporción de ingredientes disponibles, orden descendente, empate por identificador y lista de faltantes. Una selección vacía o con ingredientes desconocidos devuelve una lista vacía. No se usa aprendizaje automático. La app Android todavía no consume esta API.
 
-Ocho pruebas unitarias cubren el motor de recomendación (mismos casos que Android) y las validaciones de recetas. El recorrido REST se comprobó contra MariaDB a través del Gateway.
+Ocho pruebas unitarias cubren el motor de recomendación (mismos casos que Android) y las validaciones de recetas. Cada ingrediente tiene categoría y cada receta un producto asociado, igual que en la app. El recorrido REST se comprobó contra MariaDB a través del Gateway.

@@ -40,13 +40,13 @@ Rutas a través de `http://127.0.0.1:8080`:
 | PUT | /api/catalogo/productos/{id} | Actualización o 404 |
 | DELETE | /api/catalogo/productos/{id} | Eliminación 204 o 404 |
 
-Las mismas operaciones existen para `/api/catalogo/ingredientes`. Producto recibe `nombre`, `descripcion`, `precio` y `stock`; ingrediente recibe `nombre`. Los precios son pesos enteros de 1 a 10.000.000, stock de 0 a 9999 y nombres de 2 a 80 caracteres. Datos inválidos devuelven 400 y nombres duplicados 409. El ID se asigna en la base; no se toma del cuerpo de entrada.
+Las mismas operaciones existen para `/api/catalogo/ingredientes`. Producto recibe `nombre`, `descripcion`, `precio` y `stock`; ingrediente recibe `nombre` y `categoria` (`OUR_SOUR`, `DESTILADO`, `FRUTA`, `MIXER` u `OTRO`). Los precios son pesos enteros de 1 a 10.000.000, stock de 0 a 9999 y nombres de 2 a 80 caracteres. Datos inválidos devuelven 400 y nombres duplicados 409. El ID se asigna en la base; no se toma del cuerpo de entrada.
 
 Pruebas: `mvnw.cmd -pl ms-catalogo -am test` ejecuta las pruebas unitarias del servicio, entre ellas las de `ProductoService` e `IngredienteService`, con Mockito, sin base de datos. El recorrido REST completo (alta, duplicado, validación, 404, actualización, reinicio y eliminación) se comprobó contra MariaDB 10.4.32 a través del Gateway.
 
 ## Recetas y recomendaciones
 
-Las recetas se guardan en `catalogo_recetas` y su dosificación en `catalogo_receta_ingredientes` (receta, ingrediente, cantidad y unidad; un ingrediente no se repite en la misma receta). Al arrancar sin recetas se cargan Sour clásico, Limonada fresca y Limonada de jengibre.
+Las recetas se guardan en `catalogo_recetas` y su dosificación en `catalogo_receta_ingredientes` (receta, ingrediente, cantidad y unidad; un ingrediente no se repite en la misma receta). Cada receta tiene un producto Our Sour asociado. Al arrancar se crean, si no existen por nombre, los ingredientes, productos y recetas de demostración (Sour clásico, Limonada fresca, Limonada de jengibre y Sour express), iguales a los de la app; los identificadores pueden diferir de los de Android porque los asigna la base. No se modifican precios ni stock existentes.
 
 | Método | Ruta | Resultado |
 |---|---|---|
@@ -57,10 +57,10 @@ Las recetas se guardan en `catalogo_recetas` y su dosificación en `catalogo_rec
 | PUT | /api/catalogo/recetas/{id} | Reemplaza nombre, preparación y dosificación |
 | DELETE | /api/catalogo/recetas/{id} | Eliminación 204 o 404 |
 
-Cuerpo de alta o edición: `{"nombre": "...", "preparacion": "...", "ingredientes": [{"ingredienteId": 1, "cantidad": 30, "unidad": "ml"}]}`. Se exigen entre 1 y 20 ingredientes existentes y sin repetir, cantidad mayor que cero con hasta dos decimales y unidad de hasta 20 caracteres; si no se cumple, la respuesta es 400. Un nombre de receta repetido devuelve 409. Un ingrediente usado por una receta no se puede eliminar (409).
+Cuerpo de alta o edición: `{"nombre": "...", "preparacion": "...", "productoId": 1, "ingredientes": [{"ingredienteId": 1, "cantidad": 30, "unidad": "ml"}]}`. Se exigen entre 1 y 20 ingredientes existentes y sin repetir, cantidad mayor que cero con hasta dos decimales y unidad de hasta 20 caracteres; si no se cumple, la respuesta es 400. Un nombre de receta repetido devuelve 409. El producto debe existir (si no, 400). Un ingrediente o producto usado por una receta no se puede eliminar (409).
 
-Cada recomendación incluye `recetaId`, `nombre`, `disponibles`, `total`, `proporcion` y `faltantes` (con cantidad y unidad). Se descartan recetas sin coincidencias; el orden es por proporción descendente y, en empate, por ID de receta. Se aceptan hasta 50 ingredientes por consulta; un valor no numérico devuelve 400.
+Cada recomendación incluye `recetaId`, `nombre`, `disponibles`, `total`, `proporcion` y `faltantes` (con cantidad y unidad) y el `productoId` sugerido. Se descartan recetas sin coincidencias; el orden es por proporción descendente y, en empate, por ID de receta. Se aceptan hasta 50 ingredientes por consulta; un valor no numérico devuelve 400.
 
-Pruebas: `MotorRecomendacionTest` reproduce los casos de Android (selección vacía, coincidencia total, parciales con empate e ingrediente desconocido) y `RecetaServiceTest` comprueba ingrediente repetido, inexistente, exceso de selección y receta inexistente.
+Pruebas: `MotorRecomendacionTest` reproduce los casos de Android (selección vacía, coincidencia total, parciales con empate e ingrediente desconocido) y `RecetaServiceTest` comprueba ingrediente repetido, ingrediente o producto inexistente, exceso de selección y receta inexistente; `IngredienteServiceTest` comprueba que la categoría se guarda.
 
 Estas rutas todavía no tienen autenticación y solo escuchan en loopback. La seguridad se incorporará antes de la entrega completa.

@@ -37,7 +37,8 @@ public final class MotorRecomendacion {
             }
             int disponibles = total - faltantes.size();
             if (disponibles > 0) {
-                result.add(new RecomendacionDto(receta.getId(), receta.getNombre(), disponibles, total, faltantes));
+                Long productoId = receta.getProducto() == null ? null : receta.getProducto().getId();
+                result.add(new RecomendacionDto(receta.getId(), receta.getNombre(), disponibles, total, faltantes, productoId));
             }
         }
         result.sort(Comparator.comparingDouble(RecomendacionDto::getProporcion).reversed()

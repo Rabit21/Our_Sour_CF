@@ -12,7 +12,7 @@ class AdminTest {
         assertNotNull(shop.deleteProduct(Role.CLIENTE, 1))
         assertNotNull(shop.saveProduct(Role.ADMIN, 0, "", "Descripción demo", 1000, 1))
         assertNotNull(shop.saveProduct(Role.ADMIN, 0, "Nuevo", "Descripción demo", -1, 1))
-        assertEquals(5, shop.products.value.size)
+        assertEquals(6, shop.products.value.size)
     }
     @Test fun createEditDeleteUsesStableIds() {
         val shop = ShopViewModel()
